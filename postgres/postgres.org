@@ -1,0 +1,100 @@
+#+STARTUP: indent
+
+* Video: [[don't%20respect%20offset][PostgreSQL as a secret weapon for high-performance Ruby on Rails applications]]
+* Notes: [[http://railsonpostgresql.com/][Rails on PostgreSQL]]
+** Rails as ORM
+*** performance
+**** :include does a join
+   tasks = Task.find(:all, :include => :tags)
+
+   select * from task
+   select * from tags inner join tasks_tags
+     on tags.id = tasks_tags.tag_id
+     where tasks_tags.task_id in (1, 2, 3, ...)
+
+**** sometimes pure Ruby is just too slow, replace with select_by_sql
+   example: acts_as_tree generates n+1 queries
+
+**** how to measure DB performance impacts of new code?
+   query tests
+
+**** write migrations in sql instead of rails dsl
+   unless targetting multiple RDBMS
+*** data integrity
+**** rails can not assure data ingegrity
+**** use constraints, rules and triggers to protect data integrity, not for business logic
+**** FK constraints: everything should be RESTRICT
+**** CASCADE is a smell
+
+** Optimizing Rails with PostgreSQL
+*** Ruby performance problems
+**** mostly GC
+**** CPU bound (buy faster CPUs, not more)
+**** doesn't parallelize
+*** performance tests (ActionController::IntegrationTest)
+*** scalability is no substitute for performance
+delegate as much work as possible to the DB!
+*** Rails performance problems
+**** attribute preloading (slow, takes memory)
+non-standard Postgres array function preloads data into column
+tasks = Task.find(:all, :select => "*,
+  array(select tags.name from tags inner join tasks_tags
+  on (tags.id = tasks_tags.tag_id)
+  where tasks_taksks.task_id = tasks.id) as tag_names
+")
+adds tag_names as extra column to tasks
+3x faster because RoR does not instantiate objects from 2 tables
+**** access control
+bool_or SQL function
+**** aggregations
+use lots of memory
+** PostgreSQL Experience
+*** advantages
+**** standard compliant
+**** documentation
+**** sustained development
+**** EXPLAIN ANALYZE
+**** deadlock detection
+**** replication (warm and hot standby)
+**** recursive queries
+**** odering for aggregates
+*** disadvantages
+**** pagination with limit and offset
+subselects are execute limit + offset times!
+**** in() with subselect uses joins
+use any(array ()) instead of in()
+forces subselect to avoid a join
+only do this if you are sure, otherwise trust planner
+**** genereate queries does joins before subselects
+rewrite query to force subselects before joins
+** PostgreSQL Approaches
+*** benchmarking/performance
+*** distrust vendors
+*** sane approach to commodity hardware
+*** culture of operations
+*** release management
+** Optimize DB
+*** EXPLAIN ANALYZE
+also run it in cold state, needs clearing of page caches
+sudo echo 3 | sudo tee /proc/sys/vm/drop_caches
+*** postgres config
+**** effective_cache size = <%= ram_for_database.to_i * 3/4 %>MB
+**** shared_buffers = <%= ram_for_database.to_i / 2 %>MB
+**** work_mem = <%= 2**(Math.log(ram_for_database.to_i / expected_max_active_connections.to_i)/Math.log(2)).floor %>MB
+**** maintenance_work_mem = <%= 2**(Math.log(ram_for_database.to_i / 16)/Math.log(2)).floor %>MB
+**** synchronous_commit = on
+**** ? checkpoint_segments = 16
+**** ? wal_buffers = 8MB
+**** autovacuum = on
+**** ? effective_io_concurrency = 4
+* Article [[http://www.linux.com/learn/tutorials/394523-configuring-postgresql-for-pretty-good-performance][Configuring PostgreSQL for Pretty Good Performance]]
+** DONE shared_buffers: ~25% of syst em memory, not more than about 8GB
+** DONE work_mem: 4MB to 64MB, hard to find good value
+** DONE maintenance_work_mem: ~5% of system memory, not more than 512MB
+** DONE wal_buffers: around 1MB, on busy systems up to about 16MB
+** DONE checkpoint_segments: reasonable starting value around 30
+** DONE checkpoint_completion_target: raise from 0.5 to 0.9
+** DONE checkpoint_timeout: raise to around 15 minutes
+** DONE random_page_cost: try setting to 2.0 (even less if DB fits into RAM)
+** DONE effective_cache_size: up to 75% of available memory
+** DONE synchronous_commit: off

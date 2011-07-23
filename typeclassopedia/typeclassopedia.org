@@ -1,0 +1,250 @@
+#+TITLE: The Typeclassopedia - A summary
+#+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
+This is a summary of Brent Yorgey's excellent article "The
+Typeclassopedia", originally published in issue [[http://www.haskell.org/wikiupload/8/85/TMR-Issue13.pdf][#13]] of "[[http://themonadreader.wordpress.com/][The Monad Reader]]".
+
+* Functor
+** "container" with ability to apply a function to every element
+   =fmap= applies function to each element of the container without
+   altering the structure of the container
+** a functor represents some sort of "computational context"
+   =fmap= applies function without altering context
+** example: a list and the =map= function
+** exported by the =Prelude=
+** instances
+*** =[]=
+*** =Maybe=
+*** =Either e=
+*** =IO=
+*** =Tree=
+*** =Map=
+*** =Sequence=
+*** =Stream=
+*** =Set= is NOT a functor in Haskell because of the =Ord= type constraint
+** laws
+*** =fmap id = id=
+    mapping the identity has no effect
+*** =fmap (g . h) = fmap g . fmap h=
+    mapping a function composition has the same effect as first mapping
+    one and then the other function
+** =fmap :: Functor f => (a -> b) -> f a -> f b=
+   =fmap :: (a -> b) -> (f a -> f b)=
+   the extra parenthesis show that =fmap= transforms a "normal" function
+   into one operating on containers/contexts => "lift"
+* Pointed
+** not in the standard libraries, but in =category-extras=
+** represents pointed functors
+** useful for understanding =Applicative= and =Monad=
+** Pointed represents additional ability for putting value in default context
+** defines a =pure= function aka singleton, return, unit, point
+   for example =Just= for =Maybe=
+** most standard =Functor= instances could be instances of =Pointed=
+** law
+*** =fmap g . pure = pure . g=
+*** impossible to write an instance that does not satisfy it
+* Applicative
+** defined in =Control.Applicative=
+** newer addition to standard Haskell type classes
+** applicative functors are exactly in between =Functor= and =Monad=
+** every =Applicative= instance must also be a =Functor=
+** adds one capability to =Pointed=, applying a function which itself is in a context
+   =<*>= is basically just function application within a context
+** laws
+*** =fmap g x = pure g <*> x=
+    =g <$> x = pure g <*> x=
+
+    mapping a function =g= over a context =x= is the same as injecting =g=
+    into the context with =pure= and then applying it to =x= with =<*>=
+*** other laws relate to =pure=
+** instances
+*** most instances of =Functor=
+*** =Const= type constructor (defined in =Applicative=)
+*** =WrappedMonad= and =WrappedArrow= newtypes
+* Monad
+** special because Haskell made them framework for I/O operations
+** special because of syntactic sugar (do-notation)
+** older than =Applicative= and =Arrow=
+** exported by the =Prelude=, many utility functions in =Control.Monad=
+** additional instances in =Control.Monad.Instances=
+** methods
+*** =return= is the same as =pure=
+*** =(>>)= comes with a default implementation
+*** =fail= is a hack with no place in the =Monad= class
+*** ~(>>=)~ aka =bind= makes =Monad= more powerful than =Applicative=
+** ~(>>=)~ combines 2 computations into 1 larger computation
+** structure of a monadic computation can change depending on intermediate values; more powerful than =Applicative= where structure is fixed
+** instances
+*** =Identity=
+*** =Maybe= models computations which may fail
+*** =[]= similar to =Applicative=, models non-deterministic computations
+*** =IO= implemented in compiler specific ways; allows to build up values representing possibly effectful computations
+*** =((->) e)= aka "reader monad" for computations with a read-only environment =e= (see =Control.Monad.Reader=)
+*** =Writer= (defined in =Control.Monad.Writer=) collects information as computation progresses
+*** =State= (=Control.Monad.State=) representes stateful computations
+*** =Cont= (=Control.Monad.Cont=) models computations in CPS; has been called the "mother of all monads"
+** utility functions
+*** =join= removes one level of monadic structure
+*** =liftM= is like =fmap=
+*** =ap= is equivalent to =<*>=
+*** =sequence= combines list of computations into one which collects a list of their results
+*** =replicateM= is a combination of =replicate= and =sequence=
+*** =mapM= maps first argument over second and sequences results
+*** ~(=<<)~ is ~(>>=)~ with reversed arguments
+*** ~(>=>)~ is like function composition but with an extra =m= on the result type of the functions and swapped arguments
+*** many of the above function have underscore variants (like =mapM_= that are only used for side-effects and throw away the results of the computations)
+** laws
+*** ~return a >>= k = k a~ (injecting and binding is the same as applying)
+*** ~m >>= return = m~ (binding and returning leaves =m= unchanged)
+*** ~m >>= (\x -> kx >>= h) = (m >>= k) >>= h~ (~(>>=)~ is sort of associative)
+*** ~fmap f xs = xs >>= return . f = liftM f xs~ (ensures that =fmap= and =liftM= are the same for types which are instances of =Functor= and =Monad=)
+** alternative laws using =(>=>)=
+*** =return >=> g = g= (=return= is the identity of =(>=>)=)
+*** =g >=> return = g= (same as above)
+*** =(g >=> h) >=> k = g >=> (h >=> k)= (=(>=>)= is associative)
+** do-notation
+*** syntatactic sugar for "imperative style" programming
+*** do-blocks are recursively translated into monad operations
+*** plays strongly on "computational context" interpretation rather than "container" interpretation
+** monad transformers
+*** used for combining monads into a new monad
+*** =State=, =ReaderT=, =ErrorT= and (soon) =MaybeT=
+*** build composite monads "inside out" (see lambdabot's =@unmtl= command)
+*** all monad transformers implement the =MonadTrans= typeclass (=Control.Monad.Trans=)
+** =MonadFix=
+*** describes monads which support the fixpoint operation =mfix=
+*** =mfix :: (a -> m a) -> m a=: allows output of monadic computation to be defined via recursion
+*** =mdo= is a "recursive do" notation
+* Monoid
+** a set =S= with an associative binary operation =⊕= and an identity element in respect to that operation
+** examples:
+*** natural numbers under addition
+*** integers under multiplication
+*** boolean values under conjuction and disjunction
+** defines several functions
+*** =mempty= is the identity element
+*** =mappend= is the binary operation
+*** =mconcat='s default implementations folds =mappend=, usually sufficient
+** laws
+*** =mempty `mappend` x = x=
+*** =x `mappend` mempty = x=
+*** =(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)=
+** instances
+*** defined in =Data.Monoid=
+*** =[a]=, with =mempty = []= and =mappend = (++)=
+*** =Sum= and =Product= newtype wrappers for numeric types under addition/multiplication
+*** =Any= and =All= as newtype wrappers for =Bool= under disjunction and conjunction
+*** =Maybe=, as well as =First= and =Last=
+*** =Endo a=, newtype wrapper fo =a -> a=, which form a monoid under composition
+*** =Ordering = LT | EQ | GT= with =mempty = EQ= and =mconcat (zipWith compare xs ys)=
+*** instances for container types
+** other monoidial classes
+*** =Alternative= for =Applicative= functors with monoid structure
+*** =MonadPlus= for monads with a monoid structure (monads which support "choice and failure")
+*** =ArrowZero= and =ArrowPlus= for representing =Arrows= with monoid structure
+* Foldable
+** defined in =Data.Foldable=
+** for containers that can be "folded" into a summary value
+** container-agnostic
+** to make an instance either implement =foldMap= or =foldr=
+*** =foldMap :: Monoid m => (a -> m) -> t a -> m=
+*** =foldr :: (a -> b -> b) -> b -> t a -> b=
+** instances
+*** =List=
+*** =Maybe=
+*** =Array=
+*** containers like =Map=, =Set=, =Tree=
+** module contains generalized versions of =Prelude= functions like =concat=, =any=, =all= etc.
+** generic functions to work with =Applicative= or =Monad= instances like =traverse_=, =sequenceA_= etc.
+** =Foldable= operations forget structure of container type, but =Traversable= will preserve it
+* Traversable
+** defined in =Data.Traversable=
+** every =Traversable= is a foldable functor
+** instances only need to implement =traverse= and =sequenceA=
+** =sequenceA= is the key method of =Traversable=
+*** =sequenceA :: Applicative f => t (f a) -> f (t a)=
+*** answers the question when we can commute two functors
+*** ability to compose two mondas depends crucially on this
+** instances
+*** =[]=
+*** =Maybe=
+*** =Map=
+*** =Tree=
+*** =Sequence=
+*** =Set= is not =Traversable= even though it's =Foldable=
+** =Traversable= and =Functor= instances are almost identical, but =Traversable= takes place within an =Applicative= context
+** any =Traversable= functor is also =Foldable= and a =Functor=, both classes can be implemented only with methods from =Traversable=
+* Category
+** fairly new addition to Haskell standard library
+** generalizes notion of function compositions to general "morphisms"
+** defined in =Control.Category=
+** instance of =Category= should be something of kind =* -> * -> *= (a type constructor which takes 2 type arguments)
+** instances
+*** =(->)=
+*** =Kleisli=
+** methods
+*** =id :: cat a a=
+*** =(.) :: cat b c -> cat a b -> cat a c=
+** law
+*** =id= and =(.)= should form a monoid (=id= should be identity of =(.)= and =(.)= should be associative)
+** two additional operators
+*** =(<<<)=, a synonym for =(.)=
+*** =(>>>)=, is =(.)= with its arguments reversed
+** can only represent categories whose objects are objects of =Hask=, more general category treatment in =category-extras=
+* Arrow
+** another abstraction of computation, like =Monad= and =Applicative=
+** type of an =Arrow= computation reflects both its input and output
+** =Arrows= generalize functions, may represent some sort of "effectful" computation
+** =Category= class constraint, so we get identity arrows and arrow composition for free
+** methods that need to be implement
+*** =arr :: (b -> c) -> (b ~> c)=: takes any function =b -> c= and turns it into a generalized arrow =b ~> c=. Says we can treat any function as an arrow.
+*** =first :: (b ~> c) -> ((b, d) ~> (c, d))=: turns any arrow from =b= to =c= into an arrow from =(b,d)= to =(c,d)=. Processes first element of a tuple while leaving the second one unchanged
+** further methods
+*** =second :: (b ~> c) -> ((d, b) ~> (d, c))=: similar to =first=, but with elements of tuple swapped
+*** =(***) :: (b ~> c) -> (b’ ~> c’) -> ((b, b’) ~> (c, c’))=: "parallel composition" of arrows; takes two arrows and turns them into one on tuples (first arrow on first element, second arrow on second element)
+*** =(&&&) :: (b ~> c) -> (b ~> c’) -> (b ~> (c, c’))=: "fanout composition"; takes two arrows and makes them into a new arrow which supplies its input to both arrows, returning their results as a tuple
+** instances
+*** only two instances in library
+*** =(->)=, the normal function constructor
+*** =Kleisli m= which makes functions of type =a -> m b= into =Arrows= for any =Monad m=
+** laws
+*** =arr id = id=
+*** =arr (h . g) = arr g >>> arr h=
+*** =first (arr g) = arr (g *** id)=
+*** =first (g >>> h) = first g >>> first h=
+*** =first g >>> arr (id ***h ) = arr (id *** h) >>> first g=
+*** =first g >>> arr fst = arr fst >>> g=
+*** =first (first g) >>> arr assoc = arr assoc >>> first g=
+*** =assoc ((x,y),z) = (x,(y,z))=
+* ArrowChoice
+** allows for alternate execution paths based on intermediate results
+** methods
+*** =left :: (b ~> c) -> (Either b d ~> Either c d)=
+*** =right :: (b ~> c) -> (Either d b ~> Either d c)=
+*** =(+++) :: (b ~> c) -> (b’ ~> c’) -> (Either b b’ ~> Either c c')=
+*** =(|||) :: (b ~> d) -> (c ~> d) -> (Either b c ~> d)=
+*** similar to =first=, =second=, =(***)= and =(&&&)=, but operating on sum types instead of product types (tuples)
+*** operate on arrows whose inputs are tagged with =Left= and =Right= and choose how to act based on that
+*** =left g= has the behavior of =g= for inputs tagged with =Left= and behaves as the identity for inputs tagged as =Right=
+*** =right g= is the mirror image of =left=
+*** =(***)= performs "multiplexing": =g= behaves as =g= for inputs tagged as =Left= and =h= behaves as =h= for inputs tagged as =Right=; tags are preserved
+*** =(|||)= is "merge" or "fanin": like =(***)= but tags are discarded; mnemonic: =g ||| h= performs either =g= *or* =h=.
+* ArrowApply
+** more flexible than =ArrowChoice=
+** can *compute* an arrow from intermediate results and this computed arrow continues the computation
+** method
+*** =app :: (b ~> c, b) ~> c=
+*** allows us to apply a computed arrow to an input
+*** this is exactly what monadic bin (~(>>=)~) does
+*** =ArrowApply= and =Monad= are equivalent in expressive power
+*** any instance of =ArrowApply= can be made a =Monad= via =ArrowMonad=
+* ArrowLoop
+** describes arrows that can use recursion to compute results
+** used to desugar =rec= construct in arrow notation
+** GHC has a special arrow notation similar to do-notation that allows to assign names to intermediate results
+* Comonad
+** categorical dual of =Monad=
+** =extract= is the dual of =return=
+** =duplicate= is the dual of =join= (adds layer of monadic wrapping)
+** =extend= is the dual of ~(>>=)~ with arguments in different order
+** can be defined by =fmap=, =extract= and *either* =duplicate= or =extend=
+

@@ -12,6 +12,7 @@ Contents
   "[Don't fear the monads](http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads)" as Emacs org-file (not suitable for HTML export)
 * `postgres`: a summary of two articles and one video on tuning
   PostgreSQL, especially in combination with Ruby on Rails (Emacs org-mode)
+* `ruby-performance`: notes from Aman Gupta's talk at Frozen Rails 2011
 
 License
 ---

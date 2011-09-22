@@ -1,0 +1,38 @@
+#+title: Debugging Ruby Performance
+#+author: Michael Kohl
+#+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
+#+org-export-html-style-include-default: nil
+
+Aman Gupta at Frozen Rails 2011, 2011-09-21
+
+* lsof - list open files
+** =lsof -nPp <pid>=
+* tcpdump - dump traffic on a network
+** =tcpdump -i eth0 -s 0 -nqA <expr>=
+** =tcpdump -w <file>= f. Wireshark
+* strace - trace system calls and signals
+** =strace -cp <pid>=
+*** summary mode
+*** =-c= count time
+** =strace -ttTP <pid> -o file=
+*** tracing mode
+* ltrace - trace library calls
+** =ltrace -c=
+** =ltrace -ttT -e=
+* rbtrace - trace ruby method calls
+** http://github.com/tmm1/rbtrace
+** =rbtrace -p <pid> -m <method>=
+** =rbtrace -p <pid> --slow=50=
+* perftools - by Google
+** =pprof ruby ruby.prof --text=
+* perftools.rb - perftools for Ruby code
+* rack-perftools - Rack middleware for perftools
+* GDB - the GNU debugger
+** =gdb <executable>=
+** =gdb attach <pid>=
+* gdb.rb - gdb hooks for MRI/REE (and some for YARV)
+* memprof - a heap visualizer for ruby
+** http://memprof.com
+* graphite - time series analytics
+** http://graphite.wikidot.com/
+

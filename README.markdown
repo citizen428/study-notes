@@ -13,6 +13,7 @@ Contents
 * `postgres`: a summary of two articles and one video on tuning
   PostgreSQL, especially in combination with Ruby on Rails (Emacs org-mode)
 * `ruby-performance`: notes from Aman Gupta's talk at Frozen Rails 2011
+* `ai-class`: study notes for [Stanford's online AI class](http://www.ai-class.com/) as Emacs org-file and HTML
 
 License
 ---

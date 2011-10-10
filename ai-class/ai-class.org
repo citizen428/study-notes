@@ -1,3 +1,8 @@
+#+TITLE: Introduction to Artificial Intelligence
+#+OPTIONS: H:2 num:f toc:t \n:nil @:t ::t |:t
+#+STYLE:  <link rel="stylesheet" type="text/css" href="style.css" />
+#+org-export-html-style-include-default: nil
+
 * 1. Welcome to AI
 ** Intelligent Agents
 *** agent
@@ -13,4 +18,55 @@
 *** medicine (diagnostic agents)
 *** on the web (crawling agents)
 ** Terminology
+*** fully observable
+**** what the agent can sense at any time is sufficient to make the optimal decisions
+**** example: card game with all cards on the table
+**** sensor can see complete state of environment
+*** partially observable
+**** needs memory on the side of the agent to make an optimal decision
+**** sensor can only see part of environment, but memorizing past measurements gives additional information of the state
+*** deterministic
+**** agent's actions uniquely determine outcome
+**** example: chess
+*** stochastic
+**** element of randomness involved
+**** example: games with dice, like backgammon
+*** discrete
+**** finitely many action choices
+**** finitely many things to sense
+**** example: chess - finitely many board positions
+*** continuous
+**** space of possible actions or things to sense may be infinite
+**** example: darts - infinitely many angles and accelerations
+*** benign
+**** random environment (stochastic), but no objective of its own
+**** example: weather
+*** adversarial
+**** example: games - harder to find good actions because of opponent
+*** Quiz: Checkers
+**** fully observable
+**** deterministic
+**** discrete
+**** adversarial
+**** Poker Question
+*** Quiz: Poker
+**** partially observable
+**** stochastic
+**** discrete
+**** adversarial
+*** Quiz: Robot Car
+**** partially observable
+**** stochastic
+**** continuous
+**** benign
+** AI and Uncertainty
+*** AI is a technique for uncertainty management in computer software
+*** discipline of knowing what to do when you don't know what to do
+*** reasons for uncertainty
+**** sensor limits
+**** adversaries
+**** stochastic environments
+**** laziness
+**** ignorance
+
 

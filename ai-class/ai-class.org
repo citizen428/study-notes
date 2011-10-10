@@ -1,0 +1,16 @@
+* 1. Welcome to AI
+** Intelligent Agents
+*** agent
+*** environment
+*** agent receives environment state through sensors
+*** agent affects environment's state through actuators
+*** control policy: function that maps sensors to actuators
+*** perception action cycle: loop of environment feedback to sensors, agent decision, actuator interaction
+** Applications of AI
+*** finance
+*** robotics
+*** games
+*** medicine (diagnostic agents)
+*** on the web (crawling agents)
+** Terminology
+

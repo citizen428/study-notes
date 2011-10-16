@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 lang="en" xml:lang="en">
 <head>
 <title>Introduction to Artificial Intelligence</title>
-<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-10-10 19:37:37 CEST"/>
+<meta name="generated" content="2011-10-16 17:30:57 CEST"/>
 <meta name="author" content="Michael Kohl"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -51,12 +51,29 @@ lang="en" xml:lang="en">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 1. Welcome to AI </a>
+<li><a href="#sec-1">1 Welcome to AI </a>
 <ul>
 <li><a href="#sec-1-1">1.1 Intelligent Agents </a></li>
 <li><a href="#sec-1-2">1.2 Applications of AI </a></li>
 <li><a href="#sec-1-3">1.3 Terminology </a></li>
 <li><a href="#sec-1-4">1.4 AI and Uncertainty </a></li>
+<li><a href="#sec-1-5">1.5 Machine Translation </a></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Problem Solving </a>
+<ul>
+<li><a href="#sec-2-1">2.1 What is a problem? </a></li>
+<li><a href="#sec-2-2">2.2 Example: Route Finding </a></li>
+<li><a href="#sec-2-3">2.3 Tree Search </a></li>
+<li><a href="#sec-2-4">2.4 Graph Search </a></li>
+<li><a href="#sec-2-5">2.5 Uniform Cost Search </a></li>
+<li><a href="#sec-2-6">2.6 Search Comparison </a></li>
+<li><a href="#sec-2-7">2.7 More on Uniform Cost </a></li>
+<li><a href="#sec-2-8">2.8 A* Search </a></li>
+<li><a href="#sec-2-9">2.9 State Spaces </a></li>
+<li><a href="#sec-2-10">2.10 Sliding Block Puzzle </a></li>
+<li><a href="#sec-2-11">2.11 Problems with Search </a></li>
+<li><a href="#sec-2-12">2.12 Note on Implementation </a></li>
 </ul>
 </li>
 </ul>
@@ -64,7 +81,7 @@ lang="en" xml:lang="en">
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> 1. Welcome to AI </h2>
+<h2 id="sec-1"><span class="section-number-2">1</span> Welcome to AI </h2>
 <div class="outline-text-2" id="text-1">
 
 
@@ -252,10 +269,6 @@ lang="en" xml:lang="en">
 <li id="sec-1-3-9-4">adversarial <br/>
 </li>
 </ul>
-<ul>
-<li id="sec-1-3-9-5">Poker Question <br/>
-</li>
-</ul>
 </li>
 </ul>
 <ul>
@@ -334,8 +347,523 @@ lang="en" xml:lang="en">
 </ul>
 <ul>
 <li id="sec-1-4-3-5">ignorance <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-1-5" class="outline-3">
+<h3 id="sec-1-5"><span class="section-number-3">1.5</span> Machine Translation </h3>
+<div class="outline-text-3" id="text-1-5">
+
+<ul>
+<li id="sec-1-5-1">big success at Google <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-5-2">supports 50 languages <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-5-3">machine learning, using AI <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-5-4">collect text examples in 2 languages <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-5-5">finding most probable translations from snippets <br/>
+</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Problem Solving </h2>
+<div class="outline-text-2" id="text-2">
 
 
+</div>
+
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> What is a problem? </h3>
+<div class="outline-text-3" id="text-2-1">
+
+<ul>
+<li id="sec-2-1-1">Definition of a problem <br/>
+<ul>
+<li id="sec-2-1-1-1"><code>s</code>: state, <code>a</code>: action, <code>T</code>: true, <code>F</code>: false, <code>n</code>: cost <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-1-2">initial state <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-1-3"><code>actions(s) -&gt; {a, a2, a3, ...}</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-1-4"><code>result(s, a) -&gt; s'​</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-1-5"><code>goaltest(s) -&gt; T | F</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-1-6"><code>pathcost(s-&gt;s-&gt;s) -&gt; n</code>, implemented in terms of <code>stepcost(s, a, s') -&gt; n</code> <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Example: Route Finding </h3>
+<div class="outline-text-3" id="text-2-2">
+
+<ul>
+<li id="sec-2-2-1">state space = set of all states <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2-2">ends of the paths (furthest explorations) are called frontier <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2-3">part to the left (on the map): explored region <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2-4">part to the right: unexplored region <br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> Tree Search </h3>
+<div class="outline-text-3" id="text-2-3">
+
+<ul>
+<li id="sec-2-3-1">superimposes a search tree over the state space <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-2">family of functions with different choice functions <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-3">starts by initializing frontier to initial state <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-4">then goes into loop: <br/>
+<ul>
+<li id="sec-2-3-4-1">if frontier empty, no solution -&gt; FAIL <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-4-2">otherwise choice function <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-5">pseudo code <br/>
+
+
+
+<pre class="example">function tree-search(problem):
+  frontier = { [initial] }
+  loop:
+    if frontier is empty: return FAIL
+    path = remove-choice(frontier)
+    s = path.end
+    if GOALTEST(s): return path
+    for a in p.Actions(s):
+      Add [path+a -&gt; Result(s,a)] to frontier
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-6">breadth-first search <br/>
+<ul>
+<li id="sec-2-3-6-1">could be called shortest-first search <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3-6-2">takes shortest possible unconsidered path from the frontier <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Graph Search </h3>
+<div class="outline-text-3" id="text-2-4">
+
+<ul>
+<li id="sec-2-4-1">avoids repeated paths of tree search <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-4-2">adds an explored set to keep tracks of already explored states <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-4-3">pseudo code <br/>
+
+
+
+<pre class="example">function graph-search(problem):
+  frontier = { [initial] }; explored = {}
+  loop:
+    if frontier is empty: return FAIL
+    path = remove-choice(frontier)
+    s = path.end; add to explored
+    if s is a goal: return path
+    for a in p.Actions(s):
+      Add [path+a -&gt; Result(s,a)] to frontier
+      unless Result(s,a) in frontier+explored
+</pre>
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> Uniform Cost Search </h3>
+<div class="outline-text-3" id="text-2-5">
+
+<ul>
+<li id="sec-2-5-1">could be called cheapest-first search <br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-6" class="outline-3">
+<h3 id="sec-2-6"><span class="section-number-3">2.6</span> Search Comparison </h3>
+<div class="outline-text-3" id="text-2-6">
+
+<ul>
+<li id="sec-2-6-1">breadth-first: expand shortest/shallowest path; optimal <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-2">cheapest-first: expand path with lowest total cost; optimal <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-3">depth-first: expand longest path; not optimal <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-4">storage requirements <br/>
+<ul>
+<li id="sec-2-6-4-1">breadth-first: 2<sup>n</sup> nodes <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-4-2">cheapest-first: similar <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-4-3">depth-first: n nodes <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-4-4">lower savings when keeping track of exploring set <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-5">completeness <br/>
+<ul>
+<li id="sec-2-6-5-1">Will algorithm find a goal? <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-5-2">breath-first and cheapest first are complete <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-6-5-3">depth-first is incomplete <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-7" class="outline-3">
+<h3 id="sec-2-7"><span class="section-number-3">2.7</span> More on Uniform Cost </h3>
+<div class="outline-text-3" id="text-2-7">
+
+<ul>
+<li id="sec-2-7-1">most useful knowledge: estimate of distance between start state and goal <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-7-2">example f. route finding: straight line distance <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-7-3">greedy best-first search <br/>
+<ul>
+<li id="sec-2-7-3-1">first expands path closest to the goal according to estimate <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-7-3-2">accepts path that's longer than other paths (not optimal) <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-8" class="outline-3">
+<h3 id="sec-2-8"><span class="section-number-3">2.8</span> A* Search </h3>
+<div class="outline-text-3" id="text-2-8">
+
+<ul>
+<li id="sec-2-8-1">combines the best parts of greedy search (explores small number of nodes in many cases) and uniform cost search (guaranteed to find shortest path) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-2">always expand path that has minimum value of the function <code>f = g + h</code> <br/>
+<ul>
+<li id="sec-2-8-2-1"><code>g(path)</code>: path cost <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-2-2"><code>h(path)</code> = <code>h(s)</code> = estimated distance to goal <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-3">minimizing <code>g</code> keeps path short <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-4">minimizing <code>h</code> keeps us focused on finding the goal <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-5">"best estimated total path cost first" <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-6">if <code>h(s) &lt;</code> true cost=, A* finds the shortest path <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-8-7"><code>h</code> is optimistic (<code>h</code> should never overestimate distance to the goal) <br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-9" class="outline-3">
+<h3 id="sec-2-9"><span class="section-number-3">2.9</span> State Spaces </h3>
+<div class="outline-text-3" id="text-2-9">
+
+<ul>
+<li id="sec-2-9-1">x/y coordinates in the plane <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-2">vacuum world <br/>
+<ul>
+<li id="sec-2-9-2-1">2 physical states that robot vacuum cleaner can be in <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-2-2">each can be dirty or not <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-2-3">robot can be in either <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-2-4"><code>2 * 2 * 2 = 8 possible states</code> <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-3">more complicated vacuum world <br/>
+<ul>
+<li id="sec-2-9-3-1">power switch: on, off, sleep <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-3-2">dirt-sensing camera: on, off <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-3-3">brushes at 5 different heights <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-3-4">10 positions <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-9-3-5"><code>3 * 2 * 5 * 2^10 * 10 = 307,200 states</code> <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-10" class="outline-3">
+<h3 id="sec-2-10"><span class="section-number-3">2.10</span> Sliding Block Puzzle </h3>
+<div class="outline-text-3" id="text-2-10">
+
+<ul>
+<li id="sec-2-10-1">goal state: numbers in order <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-2">starting state: random <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-3">heuristics <br/>
+<ul>
+<li id="sec-2-10-3-1"><code>h1</code>: # misplaces blocks <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-3-2"><code>h2</code>: sum(distances of blocks) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-3-3">both are admissible heuristics (<code>h2</code> is always &gt;= than <code>h1</code>), so A* with <code>h2</code> will always expand fewer paths <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-4">program that can come up with good heuristics <br/>
+<ul>
+<li id="sec-2-10-4-1"><code>h1</code> and <code>h2</code> can be derived from problem description <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-4-2"><code>h = max(h1, h2)</code> <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-10-5">"generating a relaxed problem" <br/>
+<ul>
+<li id="sec-2-10-5-1">relaxing problem constraints <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-11" class="outline-3">
+<h3 id="sec-2-11"><span class="section-number-3">2.11</span> Problems with Search </h3>
+<div class="outline-text-3" id="text-2-11">
+
+<ul>
+<li id="sec-2-11-1">problem-solving technology works when the domain is <br/>
+<ul>
+<li id="sec-2-11-1-1">fully observable <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-11-1-2">known <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-11-1-3">discrete <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-11-1-4">deterministic <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-11-1-5">static <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2-12" class="outline-3">
+<h3 id="sec-2-12"><span class="section-number-3">2.12</span> Note on Implementation </h3>
+<div class="outline-text-3" id="text-2-12">
+
+<ul>
+<li id="sec-2-12-1">node: data structure with 4 fields <br/>
+<ul>
+<li id="sec-2-12-1-1">state field: state at end of path <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-1-2">action: action it took to get here <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-1-3">cost: total cost <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-1-4">parent: pointer to another node <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-2">linked list of nodes represents path <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-3">data structures dealing with nodes <br/>
+<ul>
+<li id="sec-2-12-3-1">frontier: priority queue / set <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-12-3-2">explored list: set <br/>
 </li>
 </ul>
 </li>
@@ -346,7 +874,7 @@ lang="en" xml:lang="en">
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2011-10-10 19:37:37 CEST</p>
+<p class="date">Date: 2011-10-16 17:30:57 CEST</p>
 <p class="author">Author: Michael Kohl</p>
 <p class="creator">Org version 7.7 with Emacs version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>

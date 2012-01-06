@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>Commodore 64 Hacking</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-01-06 16:04:04 CET"/>
+<meta name="author" content="Michael Kohl"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Commodore 64 Hacking</h1>
+
+<p>Various bits and pieces of C=64 related hacking info.
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Instruction Set </a></li>
+<li><a href="#sec-2">2 KERNAL Jump Table </a></li>
+<li><a href="#sec-3">3 Memory Map </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Instruction Set </h2>
+<div class="outline-text-2" id="text-1">
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" />
+</colgroup>
+<thead>
+<tr><th scope="col" class="left">Mnemonic</th><th scope="col" class="left">Description</th></tr>
+</thead>
+<tbody>
+<tr><td class="left">ADC</td><td class="left">Add Memory to Accumulator with Carry</td></tr>
+<tr><td class="left">AND</td><td class="left">"AND" Memory with Accumulator</td></tr>
+<tr><td class="left">ASL</td><td class="left">Shift Left One Bit (Memory or Accumulator)</td></tr>
+<tr><td class="left">BCC</td><td class="left">Branch on Carry Clear</td></tr>
+<tr><td class="left">BCS</td><td class="left">Branch on Carry Set</td></tr>
+<tr><td class="left">BEQ</td><td class="left">Branch on Result Zero</td></tr>
+<tr><td class="left">BIT</td><td class="left">Test Bits in Memory with Accumulator</td></tr>
+<tr><td class="left">BMI</td><td class="left">Branch on Result Minus</td></tr>
+<tr><td class="left">BNE</td><td class="left">Branch on Result not Zero</td></tr>
+<tr><td class="left">BPL</td><td class="left">Branch on Result Plus</td></tr>
+<tr><td class="left">BRK</td><td class="left">Force Break</td></tr>
+<tr><td class="left">BVC</td><td class="left">Branch on Overflow Clear</td></tr>
+<tr><td class="left">BVS</td><td class="left">Branch on Overflow Set</td></tr>
+<tr><td class="left">CLC</td><td class="left">Clear Carry Flag</td></tr>
+<tr><td class="left">CLD</td><td class="left">Clear Decimal Mode</td></tr>
+<tr><td class="left">CLI</td><td class="left">Clear interrupt Disable Bit</td></tr>
+<tr><td class="left">CLV</td><td class="left">Clear Overflow Flag</td></tr>
+<tr><td class="left">CMP</td><td class="left">Compare Memory and Accumulator</td></tr>
+<tr><td class="left">CPX</td><td class="left">Compare Memory and Index X</td></tr>
+<tr><td class="left">CPY</td><td class="left">Compare Memory and Index Y</td></tr>
+<tr><td class="left">DEC</td><td class="left">Decrement Memory by One</td></tr>
+<tr><td class="left">DEX</td><td class="left">Decrement Index X by One</td></tr>
+<tr><td class="left">DEY</td><td class="left">Decrement Index Y by One</td></tr>
+<tr><td class="left">EOR</td><td class="left">"Exclusive-Or" Memory with Accumulator</td></tr>
+<tr><td class="left">INC</td><td class="left">Increment Memory by One</td></tr>
+<tr><td class="left">INX</td><td class="left">Increment Index X by One</td></tr>
+<tr><td class="left">INY</td><td class="left">Increment Index Y by One</td></tr>
+<tr><td class="left">JMP</td><td class="left">Jump to New Location</td></tr>
+<tr><td class="left">JSR</td><td class="left">Jump to New Location Saving Return Address</td></tr>
+<tr><td class="left">LDA</td><td class="left">Load Accumulator with Memory</td></tr>
+<tr><td class="left">LDX</td><td class="left">Load Index X with Memory</td></tr>
+<tr><td class="left">LDY</td><td class="left">Load Index Y with Memory</td></tr>
+<tr><td class="left">LSR</td><td class="left">Shift Right One Bit (Memory or Accumulator)</td></tr>
+<tr><td class="left">NOP</td><td class="left">No Operation</td></tr>
+<tr><td class="left">ORA</td><td class="left">"OR" Memory with Accumulator</td></tr>
+<tr><td class="left">PHA</td><td class="left">Push Accumulator on Stack</td></tr>
+<tr><td class="left">PHP</td><td class="left">Push Processor Status on Stack</td></tr>
+<tr><td class="left">PLA</td><td class="left">Pull Accumulator from Stack</td></tr>
+<tr><td class="left">PLP</td><td class="left">Pull Processor Status from Stack</td></tr>
+<tr><td class="left">ROL</td><td class="left">Rotate One Bit Left (Memory or Accumulator)</td></tr>
+<tr><td class="left">ROR</td><td class="left">Rotate One Bit Right (Memory or Accumulator)</td></tr>
+<tr><td class="left">RTI</td><td class="left">Return from Interrupt</td></tr>
+<tr><td class="left">RTS</td><td class="left">Return from Subroutine</td></tr>
+<tr><td class="left">SBC</td><td class="left">Subtract Memory from Accumulator with Borrow</td></tr>
+<tr><td class="left">SEC</td><td class="left">Set Carry Flag</td></tr>
+<tr><td class="left">SED</td><td class="left">Set Decimal Mode</td></tr>
+<tr><td class="left">SEI</td><td class="left">Set Interrupt Disable Status</td></tr>
+<tr><td class="left">STA</td><td class="left">Store Accumulator in Memory</td></tr>
+<tr><td class="left">STX</td><td class="left">Store Index X in Memory</td></tr>
+<tr><td class="left">STY</td><td class="left">Store Index Y in Memory</td></tr>
+<tr><td class="left">TAX</td><td class="left">Transfer Accumulator to Index X</td></tr>
+<tr><td class="left">TAY</td><td class="left">Transfer Accumulator to Index Y</td></tr>
+<tr><td class="left">TSX</td><td class="left">Transfer Stack Pointer to Index X</td></tr>
+<tr><td class="left">TXA</td><td class="left">Transfer Index X to Accumulator</td></tr>
+<tr><td class="left">TXS</td><td class="left">Transfer Index X to Stack Pointer</td></tr>
+<tr><td class="left">TYA</td><td class="left">Transfer Index Y to Accumulator</td></tr>
+</tbody>
+</table>
+
+Source: <a href="http://www.devili.iki.fi/Computers/Commodore/C64/Programmers_Reference/Chapter_5/page_232.html">MCS6510 Microprocessor Instruction Set</a>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> KERNAL Jump Table </h2>
+<div class="outline-text-2" id="text-2">
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" /><col class="left" />
+</colgroup>
+<thead>
+<tr><th scope="col" class="left">Address</th><th scope="col" class="left">Name</th><th scope="col" class="left">A</th><th scope="col" class="left">X</th><th scope="col" class="left">Y</th><th scope="col" class="left">F</th><th scope="col" class="left">Description</th><th scope="col" class="left">Vid</th><th scope="col" class="left">Sys</th><th scope="col" class="left">Ser</th></tr>
+</thead>
+<tbody>
+<tr><td class="left">FF47/128</td><td class="left">SPINSPOUT</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Initializes I/O for fast serial</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF4A/128</td><td class="left">CLOSEALL</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Close all files on a device</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF4D/128</td><td class="left">C64MODE</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Switches to C=64 mode</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF50/128</td><td class="left">DMACALL</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Send DMA command to REU</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF53/128</td><td class="left">BOOTCALL</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Attempts to run boot sector</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF56/128</td><td class="left">PHOENIX</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Initalizes external/internal cartri.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF59/128</td><td class="left">LKUPLA</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Looks up logical device #</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF5C/128</td><td class="left">LKUPSA</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Looks up for secondary address</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF5F/128</td><td class="left">SWAPPER</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Switches betten 40 / 80 column screen</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF62/128</td><td class="left">DLCHAR</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Initializes 80 column character set</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF65/128</td><td class="left">PFKEY</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Installs a function key definition</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF68/128</td><td class="left">SETBNK</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sets bank for any I/O operations</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF6B/128</td><td class="left">GETCFG</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Get MMU configuration for a given bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF6E/128</td><td class="left">JSRFAR</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Jumps to a subroutine in another bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF71/128</td><td class="left">JMPFAR</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Starts executing code in another bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF74/128</td><td class="left">INDFET</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Execute a LDA(fetvec),Y from a bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF77/128</td><td class="left">INDSTA</td><td class="left">*</td><td class="left"></td><td class="left">*</td><td class="left"></td><td class="left">Stores a value indirectly in a bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF7A/128</td><td class="left">INDCMP</td><td class="left">*</td><td class="left"></td><td class="left">*</td><td class="left"></td><td class="left">Compares a value indirectly in a bank</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF7D/128</td><td class="left">PRIMM</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Outputs null-terminated string</td><td class="left">***</td><td class="left"></td><td class="left">***</td></tr>
+<tr><td class="left">FF81</td><td class="left">CINT</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Setup VIC,screen values, 8563&hellip;</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF84</td><td class="left">IOINIT</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Initialize VIC,SID,8563,CIA for system</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF87</td><td class="left">RAMTAS</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Initialize ram.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF8D</td><td class="left">VECTOR</td><td class="left">*</td><td class="left"></td><td class="left">*</td><td class="left"></td><td class="left">Reads or Writes to Kernal RAM Vectors</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF90</td><td class="left">SETMSG</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sets Kernal Messages On/Off.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF93</td><td class="left">SECND</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sends secondary address after LISTN</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF96</td><td class="left">TKSA</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sends secondary address after TALK</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FF99</td><td class="left">MEMTOP</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Read or set the top of system RAM.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF9C</td><td class="left">MEMBOT</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Read or set the bottom of system RAM.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FF9F</td><td class="left">KEY</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Scans Keyboard</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFA2</td><td class="left">SETMO</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">&ndash; Unimplemented Subroutine in All &ndash;</td><td class="left"></td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFA5</td><td class="left">ACPTR</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Grabs byte from current talker</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFA8</td><td class="left">CIOUT</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Output byte to current listener</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFAB</td><td class="left">UNTLK</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Commands device to stop talking</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFAE</td><td class="left">UNLSN</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Commands device to stop listening</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFB1</td><td class="left">LISTN</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Commands device to begin listening</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFB4</td><td class="left">TALK</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Commands device to begin talking</td><td class="left">***</td><td class="left">***</td><td class="left"></td></tr>
+<tr><td class="left">FFB7</td><td class="left">READSS</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Returns I/O status byte</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFBA</td><td class="left">SETLFS</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sets logical #, device #, secondary #</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFBD</td><td class="left">SETNAM</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sets pointer to filename.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFC0</td><td class="left">OPEN</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Opens up a logical file.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFC3</td><td class="left">CLOSE</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Closes a logical file.</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFC6</td><td class="left">CHKIN</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Set input channel</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFC9</td><td class="left">CHKOUT</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Set output channel</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFCC</td><td class="left">CLRCH</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Restore default channels</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFCF</td><td class="left">BASIN</td><td class="left">*</td><td class="left"></td><td class="left">*</td><td class="left"></td><td class="left">Input from channel</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFD2</td><td class="left">BSOUT</td><td class="left">*</td><td class="left"></td><td class="left">*</td><td class="left"></td><td class="left">Output to channel (aka CHROUT)</td><td class="left">***</td><td class="left"></td><td class="left">***</td></tr>
+<tr><td class="left">FFD5</td><td class="left">LOAD</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Load data from file</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFD8</td><td class="left">SAVE</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Save data to file</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFDB</td><td class="left">SETTIM</td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left"></td><td class="left">Sets internal (TI\() clock</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFDE</td><td class="left">RDTIM</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Reads internal (TI\)) clock</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFE1</td><td class="left">STOP</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Scans and check for STOP key</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFE4</td><td class="left">GETIN</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left">Reads buffered data from file</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFE7</td><td class="left">CLALL</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Close all open files and channels</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFEA</td><td class="left">UDTIM</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Updates internal (TI$) clock</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFED</td><td class="left">SCRORG</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Returns current window/screen size</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFF0</td><td class="left">PLOT</td><td class="left">*</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left">Read or set cursor position</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+<tr><td class="left">FFF3</td><td class="left">IOBASE</td><td class="left">*</td><td class="left">*</td><td class="left"></td><td class="left"></td><td class="left">Read base of I/O block</td><td class="left">***</td><td class="left"></td><td class="left"></td></tr>
+</tbody>
+</table>
+
+Source: <a href="http://ffd2.com/fridge/chacking/c=hacking3.txt">C=Hacking Issue 3</a>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Memory Map </h2>
+<div class="outline-text-2" id="text-3">
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col class="left" /><col class="left" /><col class="right" /><col class="left" />
+</colgroup>
+<thead>
+<tr><th scope="col" class="left">Label</th><th scope="col" class="left">Hex Address</th><th scope="col" class="right">Dec. Location</th><th scope="col" class="left">Description</th></tr>
+</thead>
+<tbody>
+<tr><td class="left">D6510</td><td class="left">0000</td><td class="right">0</td><td class="left">6510 On-Chip Data-Direction Register</td></tr>
+<tr><td class="left">R6510</td><td class="left">0001</td><td class="right">1</td><td class="left">6510 On-Chip 8-Bit Input/Output Register</td></tr>
+<tr><td class="left"></td><td class="left">0002</td><td class="right">2</td><td class="left">Unused</td></tr>
+<tr><td class="left">ADRAY1</td><td class="left">0003-0004</td><td class="right">3-4</td><td class="left">Jump Vector: Convert Floating-Integer</td></tr>
+<tr><td class="left">ADRAY2</td><td class="left">0005-0006</td><td class="right">5-6</td><td class="left">Jump Vector: Convert Integer&ndash;Floating</td></tr>
+<tr><td class="left">CHARAC</td><td class="left">0007</td><td class="right">7</td><td class="left">Search Character</td></tr>
+<tr><td class="left">ENDCHR</td><td class="left">0008</td><td class="right">8</td><td class="left">Flag: Scan for Quote at End of String</td></tr>
+<tr><td class="left">TRMPOS</td><td class="left">0009</td><td class="right">9</td><td class="left">Screen Column From Last TAB</td></tr>
+<tr><td class="left">VERCK</td><td class="left">000A</td><td class="right">10</td><td class="left">Flag: 0 = Load, 1 = Verify</td></tr>
+<tr><td class="left">COUNT</td><td class="left">000B</td><td class="right">11</td><td class="left">Input Buffer Pointer / No. of Subscripts</td></tr>
+<tr><td class="left">DIMFLG</td><td class="left">000C</td><td class="right">12</td><td class="left">Flag: Default Array DiMension</td></tr>
+<tr><td class="left">VALTYP</td><td class="left">000D</td><td class="right">13</td><td class="left">Data Type: $FF = String, $00 = Numeric</td></tr>
+<tr><td class="left">INTFLG</td><td class="left">000E</td><td class="right">14</td><td class="left">Data Type: $80 = Integer, $00 = Floating</td></tr>
+<tr><td class="left">GARBFL</td><td class="left">000F</td><td class="right">15</td><td class="left">Flag: DATA scan/LIST quote/Garbage Coll</td></tr>
+<tr><td class="left">SUBFLG</td><td class="left">0010</td><td class="right">16</td><td class="left">Flag: Subscript Ref / User Function Call</td></tr>
+<tr><td class="left">INPFLG</td><td class="left">0011</td><td class="right">17</td><td class="left">Flag: $00 = INPUT, $40 = GET, $98 = READ</td></tr>
+<tr><td class="left">TANSGN</td><td class="left">0012</td><td class="right">18</td><td class="left">Flag TAN sign / Comparison Result</td></tr>
+<tr><td class="left"></td><td class="left">0013</td><td class="right">19</td><td class="left">Flag: INPUT Prompt</td></tr>
+<tr><td class="left">LINNUM</td><td class="left">0014-0015</td><td class="right">20-21</td><td class="left">Temp: Integer Value</td></tr>
+<tr><td class="left">TEMPPT</td><td class="left">0016</td><td class="right">22</td><td class="left">Pointer Temporary String</td></tr>
+<tr><td class="left">LASTPT</td><td class="left">0017-0018</td><td class="right">23-24</td><td class="left">Last Temp String Address</td></tr>
+<tr><td class="left">TEMPST</td><td class="left">0019-0021</td><td class="right">25-33</td><td class="left">Stack for Temporary Strings</td></tr>
+<tr><td class="left">INDEX</td><td class="left">0022-0025</td><td class="right">34-37</td><td class="left">Utility Pointer Area</td></tr>
+<tr><td class="left">RESHO</td><td class="left">0026-002A</td><td class="right">38-42</td><td class="left">Floating-Point Product of Multiply</td></tr>
+<tr><td class="left">TXTTAB</td><td class="left">002B-002C</td><td class="right">43-44</td><td class="left">Pointer: Start of BASIC Text</td></tr>
+<tr><td class="left">VARTAB</td><td class="left">002D-002E</td><td class="right">45-46</td><td class="left">Pointer: Start of BASIC Variables</td></tr>
+<tr><td class="left">ARYTAB</td><td class="left">002F-0030</td><td class="right">47-48</td><td class="left">Pointer: Start of BASIC Arrays</td></tr>
+<tr><td class="left">STREND</td><td class="left">0031-0032</td><td class="right">49-50</td><td class="left">Pointer End of BASIC Arrays (+1)</td></tr>
+<tr><td class="left">FRETOP</td><td class="left">0033-0034</td><td class="right">51-52</td><td class="left">Pointer: Bottom of String Storage</td></tr>
+<tr><td class="left">FRESPC</td><td class="left">0035-0036</td><td class="right">53-54</td><td class="left">Utility String Pointer</td></tr>
+<tr><td class="left">MEMSIZ</td><td class="left">0037-0038</td><td class="right">55-56</td><td class="left">Pointer: Highest Address Used by BASIC</td></tr>
+<tr><td class="left">CURLIN</td><td class="left">0039-003A</td><td class="right">57-58</td><td class="left">Current BASIC Line Number</td></tr>
+<tr><td class="left">OLDLIN</td><td class="left">003B-003C</td><td class="right">59-60</td><td class="left">Previous BASIC Line Number</td></tr>
+<tr><td class="left">OLDTXT</td><td class="left">003D-003E</td><td class="right">61-62</td><td class="left">Pointer: BASIC Statement for CONT</td></tr>
+<tr><td class="left">DATLIN</td><td class="left">003F-0040</td><td class="right">63-64</td><td class="left">Current DATA Line Number</td></tr>
+<tr><td class="left">DATPTR</td><td class="left">0041-0042</td><td class="right">65-66</td><td class="left">Pointer: Current DATA Item Address</td></tr>
+<tr><td class="left">INPPTR</td><td class="left">0043-0044</td><td class="right">67-68</td><td class="left">Vector: INPUT Routine</td></tr>
+<tr><td class="left">VARNAM</td><td class="left">0045-0046</td><td class="right">69-70</td><td class="left">Current BASIC Variable Name</td></tr>
+<tr><td class="left">VARPNT</td><td class="left">0047-0048</td><td class="right">71-72</td><td class="left">Pointer: Current BASIC Variable Data</td></tr>
+<tr><td class="left">FORPNT</td><td class="left">0049-004A</td><td class="right">73-74</td><td class="left">Pointer: Index Variable for FOR/NEXT</td></tr>
+<tr><td class="left"></td><td class="left">004B-0060</td><td class="right">75-96</td><td class="left">Temp Pointer / Data Area</td></tr>
+<tr><td class="left">FACEXP</td><td class="left">0061</td><td class="right">97</td><td class="left">Floating-Point Accumulator #1: Exponent</td></tr>
+<tr><td class="left">FACHO</td><td class="left">0062-0065</td><td class="right">98-101</td><td class="left">Floating Accum. #1: Mantissa</td></tr>
+<tr><td class="left">FACSGN</td><td class="left">0066</td><td class="right">102</td><td class="left">Floating Accum. #1: Sign</td></tr>
+<tr><td class="left">SGNFLG</td><td class="left">0067</td><td class="right">103</td><td class="left">Pointer: Series Evaluation Constant</td></tr>
+<tr><td class="left">BITS</td><td class="left">0068</td><td class="right">104</td><td class="left">Floating Accum. #1: Overflow Digit</td></tr>
+<tr><td class="left">ARGEXP</td><td class="left">0069</td><td class="right">105</td><td class="left">Floating-Point Accumulator #2: Exponent</td></tr>
+<tr><td class="left">ARGHO</td><td class="left">006A-006D</td><td class="right">106-109</td><td class="left">Floating Accum. #2: Mantissa</td></tr>
+<tr><td class="left">ARGSGN</td><td class="left">006E</td><td class="right">110</td><td class="left">Floating Accum. #2: Sign</td></tr>
+<tr><td class="left">ARISGN</td><td class="left">006F</td><td class="right">111</td><td class="left">Sign Comparison Result: Accum. # 1 vs #2</td></tr>
+<tr><td class="left">FACOV</td><td class="left">0070</td><td class="right">112</td><td class="left">Floating Accum. #1. Low-Order (Rounding)</td></tr>
+<tr><td class="left">FBUFPT</td><td class="left">0071-0072</td><td class="right">113-114</td><td class="left">Pointer: Cassette Buffer</td></tr>
+<tr><td class="left">CHRGET</td><td class="left">0073-008A</td><td class="right">115-138</td><td class="left">Subroutine: Get Next Byte of BASIC Text</td></tr>
+<tr><td class="left">CHRGOT</td><td class="left">0079</td><td class="right">121</td><td class="left">Entry to Get Same Byte of Text Again</td></tr>
+<tr><td class="left">TXTPTR</td><td class="left">007A-007B</td><td class="right">122-123</td><td class="left">Pointer: Current Byte of BASIC Text</td></tr>
+<tr><td class="left">RNDX</td><td class="left">008B-008F</td><td class="right">139-143</td><td class="left">Floating RND Function Seed Value</td></tr>
+<tr><td class="left">STATUS</td><td class="left">0090</td><td class="right">144</td><td class="left">Kernal I/O Status Word: ST</td></tr>
+<tr><td class="left">STKEY</td><td class="left">0091</td><td class="right">145</td><td class="left">Flag: STOP key / RVS key</td></tr>
+<tr><td class="left">SVXT</td><td class="left">0092</td><td class="right">146</td><td class="left">Timing Constant for Tape</td></tr>
+<tr><td class="left">VERCK</td><td class="left">0093</td><td class="right">147</td><td class="left">Flag: 0 = Load, 1 = Verify</td></tr>
+<tr><td class="left">C3PO</td><td class="left">0094</td><td class="right">148</td><td class="left">Flag: Serial Bus-Output Char. Buffered</td></tr>
+<tr><td class="left">BSOUR</td><td class="left">0095</td><td class="right">149</td><td class="left">Buffered Character for Serial Bus</td></tr>
+<tr><td class="left">SYNO</td><td class="left">0096</td><td class="right">150</td><td class="left">Cassette Sync No.</td></tr>
+<tr><td class="left"></td><td class="left">0097</td><td class="right">151</td><td class="left">Temp Data Area</td></tr>
+<tr><td class="left">LDTND</td><td class="left">0098</td><td class="right">152</td><td class="left">No. of Open Files / Index to File Table</td></tr>
+<tr><td class="left">DFLTN</td><td class="left">0099</td><td class="right">153</td><td class="left">Default Input Device (0)</td></tr>
+<tr><td class="left">DFLTO</td><td class="left">009A</td><td class="right">154</td><td class="left">Default Output (CMD) Device (3)</td></tr>
+<tr><td class="left">PRTY</td><td class="left">009B</td><td class="right">155</td><td class="left">Tape Character Parity</td></tr>
+<tr><td class="left">DPSW</td><td class="left">009C</td><td class="right">156</td><td class="left">Flag: Tape Byte-Received</td></tr>
+<tr><td class="left">MSGFLG</td><td class="left">009D</td><td class="right">157</td><td class="left">Flag: $80 = Direct Mode, $00 = Program</td></tr>
+<tr><td class="left">PTR1</td><td class="left">009E</td><td class="right">158</td><td class="left">Tape Pass 1 Error Log</td></tr>
+<tr><td class="left">PTR2</td><td class="left">009F</td><td class="right">159</td><td class="left">Tape Pass 2 Error Log</td></tr>
+<tr><td class="left">TIME</td><td class="left">00A0-00A2</td><td class="right">160-162</td><td class="left">Real-Time Jiffy Clock (approx) 1/60 Sec</td></tr>
+<tr><td class="left"></td><td class="left">00A3-00A4</td><td class="right">163-164</td><td class="left">Temp Data Area</td></tr>
+<tr><td class="left">CNTDN</td><td class="left">00A5</td><td class="right">165</td><td class="left">Cassette Sync Countdown</td></tr>
+<tr><td class="left">BUFPNT</td><td class="left">00A6</td><td class="right">166</td><td class="left">Pointer: Tape I/O Buffer</td></tr>
+<tr><td class="left">INBIT</td><td class="left">00A7</td><td class="right">167</td><td class="left">RS-232 Input Bits / Cassette Temp</td></tr>
+<tr><td class="left">BITCI</td><td class="left">00A8</td><td class="right">168</td><td class="left">RS-232 Input Bit Count / Cassette Temp</td></tr>
+<tr><td class="left">RINONE</td><td class="left">00A9</td><td class="right">169</td><td class="left">RS-232 Flag: Check for Start Bit</td></tr>
+<tr><td class="left">RIDATA</td><td class="left">00AA</td><td class="right">170</td><td class="left">RS-232 Input Byte Buffer/Cassette Temp</td></tr>
+<tr><td class="left">RIPRTY</td><td class="left">00AB</td><td class="right">171</td><td class="left">RS-232 Input Parity / Cassette Short Cnt</td></tr>
+<tr><td class="left">SAL</td><td class="left">00AC-00AD</td><td class="right">172-173</td><td class="left">Pointer: Tape Buffer/ Screen Scrolling</td></tr>
+<tr><td class="left">EAL</td><td class="left">00AE-00AF</td><td class="right">174-175</td><td class="left">Tape End Addresses/End of Program</td></tr>
+<tr><td class="left">CMP0</td><td class="left">00B0-00B1</td><td class="right">176-177</td><td class="left">Tape Timing Constants</td></tr>
+<tr><td class="left">TAPE1</td><td class="left">00B2-00B3</td><td class="right">178-179</td><td class="left">Pointer: Start of Tape Buffer</td></tr>
+<tr><td class="left">BITTS</td><td class="left">00B4</td><td class="right">180</td><td class="left">RS-232 Out Bit Count / Cassette Temp</td></tr>
+<tr><td class="left">NXTBIT</td><td class="left">00B5</td><td class="right">181</td><td class="left">RS-232 Next Bit to Send/ Tape EOT Flag</td></tr>
+<tr><td class="left">RODATA</td><td class="left">00B6</td><td class="right">182</td><td class="left">RS-232 Out Byte Buffer</td></tr>
+<tr><td class="left">FNLEN</td><td class="left">00B7</td><td class="right">183</td><td class="left">Length of Current File Name</td></tr>
+<tr><td class="left">LA</td><td class="left">00B8</td><td class="right">184</td><td class="left">Current Logical File Number</td></tr>
+<tr><td class="left">SA</td><td class="left">00B9</td><td class="right">185</td><td class="left">Current Secondary Address</td></tr>
+<tr><td class="left">FA</td><td class="left">00BA</td><td class="right">186</td><td class="left">Current Device Number</td></tr>
+<tr><td class="left">FNADR</td><td class="left">00BB-00BC</td><td class="right">187-188</td><td class="left">Pointer: Current File Name</td></tr>
+<tr><td class="left">ROPRTY</td><td class="left">00BD</td><td class="right">189</td><td class="left">RS-232 Out Parity / Cassette Temp</td></tr>
+<tr><td class="left">FSBLK</td><td class="left">00BE</td><td class="right">190</td><td class="left">Cassette Read / Write Block Count</td></tr>
+<tr><td class="left">MYCH</td><td class="left">00BF</td><td class="right">191</td><td class="left">Serial Word Buffer</td></tr>
+<tr><td class="left">CAS1</td><td class="left">00C0</td><td class="right">192</td><td class="left">Tape Motor Interlock</td></tr>
+<tr><td class="left">STAL</td><td class="left">00C1-00C2</td><td class="right">193-194</td><td class="left">I/O Start Address</td></tr>
+<tr><td class="left">MEMUSS</td><td class="left">00C3-00C4</td><td class="right">195-196</td><td class="left">Tape Load Temps</td></tr>
+<tr><td class="left">LSTX</td><td class="left">00C5</td><td class="right">197</td><td class="left">Current Key Pressed: CHR$(n) 0 = No Key</td></tr>
+<tr><td class="left">NDX</td><td class="left">00C6</td><td class="right">198</td><td class="left">No. of Chars. in Keyboard Buffer (Queue)</td></tr>
+<tr><td class="left">RVS</td><td class="left">00C7</td><td class="right">199</td><td class="left">Flag: Reverse Chars. - 1=Yes, 0=No Used</td></tr>
+<tr><td class="left">INDX</td><td class="left">00C8</td><td class="right">200</td><td class="left">Pointer: End of Logical Line for INPUT</td></tr>
+<tr><td class="left">LXSP</td><td class="left">00C9-00CA</td><td class="right">201-202</td><td class="left">Cursor X-Y Pos. at Start of INPUT</td></tr>
+<tr><td class="left">SFDX</td><td class="left">00CB</td><td class="right">203</td><td class="left">Flag: Print Shifted Chars.</td></tr>
+<tr><td class="left">BLNSW</td><td class="left">00CC</td><td class="right">204</td><td class="left">Cursor Blink enable: 0 = Flash Cursor</td></tr>
+<tr><td class="left">BLNCT</td><td class="left">00CD</td><td class="right">205</td><td class="left">Timer: Countdown to Toggle Cursor</td></tr>
+<tr><td class="left">GDBLN</td><td class="left">00CE</td><td class="right">206</td><td class="left">Character Under Cursor</td></tr>
+<tr><td class="left">BLNON</td><td class="left">00CF</td><td class="right">207</td><td class="left">Flag: Last Cursor Blink On/Off</td></tr>
+<tr><td class="left">CRSW</td><td class="left">00D0</td><td class="right">208</td><td class="left">Flag: INPUT or GET from Keyboard</td></tr>
+<tr><td class="left">PNT</td><td class="left">00D1-00D2</td><td class="right">209-210</td><td class="left">Pointer: Current Screen Line Address</td></tr>
+<tr><td class="left">PNTR</td><td class="left">00D3</td><td class="right">211</td><td class="left">Cursor Column on Current Line</td></tr>
+<tr><td class="left">QTSW</td><td class="left">00D4</td><td class="right">212</td><td class="left">Flag: Editor in Quote Mode, $00 = NO</td></tr>
+<tr><td class="left">LNMX</td><td class="left">00D5</td><td class="right">213</td><td class="left">Physical Screen Line Length</td></tr>
+<tr><td class="left">TBLX</td><td class="left">00D6</td><td class="right">214</td><td class="left">Current Cursor Physical Line Number</td></tr>
+<tr><td class="left"></td><td class="left">00D7</td><td class="right">215</td><td class="left">Temp Data Area</td></tr>
+<tr><td class="left">INSRT</td><td class="left">00D8</td><td class="right">216</td><td class="left">Flag: Insert Mode, &gt;0 = # INSTs</td></tr>
+<tr><td class="left">LDTB1</td><td class="left">00D9-00F2</td><td class="right">217-242</td><td class="left">Screen Line Link Table / Editor Temps</td></tr>
+<tr><td class="left">USER</td><td class="left">00F3-00F4</td><td class="right">243-244</td><td class="left">Pointer: Current Screen Color RAM loc.</td></tr>
+<tr><td class="left">KEYTAB</td><td class="left">00F5-00F6</td><td class="right">245-246</td><td class="left">Vector Keyboard Decode Table</td></tr>
+<tr><td class="left">RIBUF</td><td class="left">00F7-00F8</td><td class="right">247-248</td><td class="left">RS-232 Input Buffer Pointer</td></tr>
+<tr><td class="left">ROBUF</td><td class="left">00F9-00FA</td><td class="right">249-250</td><td class="left">RS-232 Output Buffer Pointer</td></tr>
+<tr><td class="left">FREKZP</td><td class="left">00FB-00FE</td><td class="right">251-254</td><td class="left">Free 0-Page Space for User Programs</td></tr>
+<tr><td class="left">BASZPT</td><td class="left">00FF</td><td class="right">255</td><td class="left">BASIC Temp Data Area</td></tr>
+<tr><td class="left"></td><td class="left">0100-01FF</td><td class="right">256-511</td><td class="left">Micro-Processor System Stack Area</td></tr>
+<tr><td class="left"></td><td class="left">0100-010A</td><td class="right">256-266</td><td class="left">Floating to String Work Area</td></tr>
+<tr><td class="left">BAD</td><td class="left">0100-013E</td><td class="right">256-318</td><td class="left">Tape Input Error Log</td></tr>
+<tr><td class="left">BUF</td><td class="left">0200-02S8</td><td class="right">512-600</td><td class="left">System INPUT Buffer</td></tr>
+<tr><td class="left">LAT</td><td class="left">0259-0262</td><td class="right">601-610</td><td class="left">KERNAL Table: Active Logical File No's.</td></tr>
+<tr><td class="left">FAT</td><td class="left">0263-026C</td><td class="right">611-620</td><td class="left">KERNAL Table: Device No. for Each File</td></tr>
+<tr><td class="left">SAT</td><td class="left">026D-0276</td><td class="right">621-630</td><td class="left">KERNAL Table: Second Address Each File</td></tr>
+<tr><td class="left">KEYD</td><td class="left">0277-0280</td><td class="right">631-640</td><td class="left">Keyboard Buffer Queue (FIFO)</td></tr>
+<tr><td class="left">MEMSTR</td><td class="left">0281-0282</td><td class="right">641-642</td><td class="left">Pointer: Bottom of Memory for O.S.</td></tr>
+<tr><td class="left">MEMSIZ</td><td class="left">0283-0284</td><td class="right">643-644</td><td class="left">Pointer: Top of Memory for O.S.</td></tr>
+<tr><td class="left">TIMOUT</td><td class="left">0285</td><td class="right">645</td><td class="left">Flag: Kernal Variable for IEEE Timeout</td></tr>
+<tr><td class="left">COLOR</td><td class="left">0286</td><td class="right">646</td><td class="left">Current Character Color Code</td></tr>
+<tr><td class="left">GDCOL</td><td class="left">0287</td><td class="right">647</td><td class="left">Background Color Under Cursor</td></tr>
+<tr><td class="left">HIBASE</td><td class="left">0288</td><td class="right">648</td><td class="left">Top of Screen Memory (Page)</td></tr>
+<tr><td class="left">XMAX</td><td class="left">0289</td><td class="right">649</td><td class="left">Size of Keyboard Buffer</td></tr>
+<tr><td class="left">RPTFLG</td><td class="left">028A</td><td class="right">650</td><td class="left">Flag: REPEAT Key Used, $80 = Repeat</td></tr>
+<tr><td class="left">KOUNT</td><td class="left">028B</td><td class="right">651</td><td class="left">Repeat Speed Counter</td></tr>
+<tr><td class="left">DELAY</td><td class="left">028C</td><td class="right">652</td><td class="left">Repeat Delay Counter</td></tr>
+<tr><td class="left">SHFLAG</td><td class="left">028D</td><td class="right">653</td><td class="left">Flag: Keyboard SHIFT Key/CTRL Key/C= Key</td></tr>
+<tr><td class="left">LSTSHF</td><td class="left">028E</td><td class="right">654</td><td class="left">Last Keyboard Shift Pattern</td></tr>
+<tr><td class="left">KEYLOG</td><td class="left">028F-0290</td><td class="right">655-656</td><td class="left">Vector: Keyboard Table Setup</td></tr>
+<tr><td class="left">MODE</td><td class="left">0291</td><td class="right">657</td><td class="left">Flag: $00=Disable SHIFT Keys, $80=Enable</td></tr>
+<tr><td class="left">AUTODN</td><td class="left">0292</td><td class="right">658</td><td class="left">Flag: Auto Scroll Down, 0 = ON</td></tr>
+<tr><td class="left">M51CTR</td><td class="left">0293</td><td class="right">659</td><td class="left">RS-232: 6551 Control Register Image</td></tr>
+<tr><td class="left">MS1CDR</td><td class="left">0294</td><td class="right">660</td><td class="left">RS-232: 6551 Command Register Image</td></tr>
+<tr><td class="left">M51AJB</td><td class="left">0295-0296</td><td class="right">661-662</td><td class="left">RS-232 Non-Standard BPS (Time/2-100) USA</td></tr>
+<tr><td class="left">RSSTAT</td><td class="left">0297</td><td class="right">663</td><td class="left">RS-232: 6551 Status Register Image</td></tr>
+<tr><td class="left">BITNUM</td><td class="left">0298</td><td class="right">664</td><td class="left">RS-232 Number of Bits Left to Send</td></tr>
+<tr><td class="left">BAUDOF</td><td class="left">0299-029A</td><td class="right">665-666</td><td class="left">RS-232 Baud Rate: Full Bit Time (us)</td></tr>
+<tr><td class="left">RIDBE</td><td class="left">029B</td><td class="right">667</td><td class="left">RS-232 Index to End of Input Buffer</td></tr>
+<tr><td class="left">RIDBS</td><td class="left">029C</td><td class="right">668</td><td class="left">RS-232 Start of Input Buffer (Page)</td></tr>
+<tr><td class="left">RODBS</td><td class="left">029D</td><td class="right">669</td><td class="left">RS-232 Start of Output Buffer (Page)</td></tr>
+<tr><td class="left">RODBE</td><td class="left">029E</td><td class="right">670</td><td class="left">RS-232 Index to End of Output Buffer</td></tr>
+<tr><td class="left">IRQTMP</td><td class="left">029F-02A0</td><td class="right">671-672</td><td class="left">Holds IRQ Vector During Tape I/O</td></tr>
+<tr><td class="left">ENABL</td><td class="left">02A1</td><td class="right">673</td><td class="left">RS-232 Enables</td></tr>
+<tr><td class="left"></td><td class="left">02A2</td><td class="right">674</td><td class="left">TOD Sense During Cassette I/O</td></tr>
+<tr><td class="left"></td><td class="left">02A3</td><td class="right">675</td><td class="left">Temp Storage For Cassette Read</td></tr>
+<tr><td class="left"></td><td class="left">02A4</td><td class="right">676</td><td class="left">Temp D1 IRQ Indicator For Cassette Read</td></tr>
+<tr><td class="left"></td><td class="left">02A5</td><td class="right">677</td><td class="left">Temp For Line Index</td></tr>
+<tr><td class="left"></td><td class="left">02A6</td><td class="right">678</td><td class="left">PAL/NTSC Flag, 0= NTSC, 1 = PAL</td></tr>
+<tr><td class="left"></td><td class="left">02A7-02FF</td><td class="right">679-767</td><td class="left">Unused</td></tr>
+<tr><td class="left">IERROR</td><td class="left">0300-0301</td><td class="right">768-769</td><td class="left">Vector: Print BASIC Error Message</td></tr>
+<tr><td class="left">IMAIN</td><td class="left">0302-0303</td><td class="right">770-771</td><td class="left">Vector: BASIC Warm Start</td></tr>
+<tr><td class="left">ICRNCH</td><td class="left">0304-0305</td><td class="right">772-773</td><td class="left">Vector: Tokenize BASIC Text</td></tr>
+<tr><td class="left">IQPLOP</td><td class="left">0306-0307</td><td class="right">774-775</td><td class="left">Vector: BASIC Text LIST</td></tr>
+<tr><td class="left">IGONE</td><td class="left">0308-0309</td><td class="right">776-777</td><td class="left">Vector: BASIC Char. Dispatch</td></tr>
+<tr><td class="left">IEVAL</td><td class="left">030A-030B</td><td class="right">778-779</td><td class="left">Vector: BASIC Token Evaluation</td></tr>
+<tr><td class="left">SAREG</td><td class="left">030C</td><td class="right">780</td><td class="left">Storage for 6502 .A Register</td></tr>
+<tr><td class="left">SXREG</td><td class="left">030D</td><td class="right">781</td><td class="left">Storage for 5502 .X Register</td></tr>
+<tr><td class="left">SYREG</td><td class="left">030E</td><td class="right">782</td><td class="left">Storage for 6502 .Y Register</td></tr>
+<tr><td class="left">SPREG</td><td class="left">030F</td><td class="right">783</td><td class="left">Storage for 6502 .SP Register</td></tr>
+<tr><td class="left">USRPOK</td><td class="left">0310</td><td class="right">784</td><td class="left">USR Function Jump Instr (4C)</td></tr>
+<tr><td class="left">USRADD</td><td class="left">0311-0312</td><td class="right">785-786</td><td class="left">USR Address Low Byte / High Byte</td></tr>
+<tr><td class="left"></td><td class="left">0313</td><td class="right">787</td><td class="left">Unused</td></tr>
+<tr><td class="left">CINV</td><td class="left">0314-0315</td><td class="right">788-789</td><td class="left">Vector: Hardware Interrupt</td></tr>
+<tr><td class="left">CBINV</td><td class="left">0316-0317</td><td class="right">790-791</td><td class="left">Vector: BRK Instr. Interrupt</td></tr>
+<tr><td class="left">NMINV</td><td class="left">0318-0319</td><td class="right">792-793</td><td class="left">Vector: Non-Maskable Interrupt</td></tr>
+<tr><td class="left">IOPEN</td><td class="left">031A-031B</td><td class="right">794-795</td><td class="left">KERNAL OPEN Routine Vector</td></tr>
+<tr><td class="left">ICLOSE</td><td class="left">031C-031D</td><td class="right">796-797</td><td class="left">KERNAL CLOSE Routine Vector</td></tr>
+<tr><td class="left">ICHKIN</td><td class="left">031E-031F</td><td class="right">798-799</td><td class="left">KERNAL CHKIN Routine</td></tr>
+<tr><td class="left">ICKOUT</td><td class="left">0320-0321</td><td class="right">800-801</td><td class="left">KERNAL CHKOUT Routine</td></tr>
+<tr><td class="left">ICLRCH</td><td class="left">0322-0323</td><td class="right">802-803</td><td class="left">KERNAL CLRCHN Routine Vector</td></tr>
+<tr><td class="left">IBASIN</td><td class="left">0324-0325</td><td class="right">804-805</td><td class="left">KERNAL CHRIN Routine</td></tr>
+<tr><td class="left">IBSOUT</td><td class="left">0326-0327</td><td class="right">806-807</td><td class="left">KERNAL CHROUT Routine</td></tr>
+<tr><td class="left">ISTOP</td><td class="left">0328-0329</td><td class="right">808-809</td><td class="left">KERNAL STOP Routine Vector</td></tr>
+<tr><td class="left">IGETIN</td><td class="left">032A-032B</td><td class="right">810-811</td><td class="left">KERNAL GETIN Routine</td></tr>
+<tr><td class="left">ICLALL</td><td class="left">032C-032D</td><td class="right">812-813</td><td class="left">KERNAL CLALL Routine Vector</td></tr>
+<tr><td class="left">USRCMD</td><td class="left">032E-032F</td><td class="right">814-815</td><td class="left">User-Defined Vector</td></tr>
+<tr><td class="left">ILOAD</td><td class="left">0330-0331</td><td class="right">813-817</td><td class="left">KERNAL LOAD Routine</td></tr>
+<tr><td class="left">ISAVE</td><td class="left">0332-0333</td><td class="right">818-819</td><td class="left">KERNAL SAVE Routine Vector</td></tr>
+<tr><td class="left">&amp;nsbp;</td><td class="left">0334-033B</td><td class="right">820-827</td><td class="left">Unused</td></tr>
+<tr><td class="left">TBUFFR</td><td class="left">033C-03FB</td><td class="right">828-1019</td><td class="left">Tape I/O Buffer</td></tr>
+<tr><td class="left"></td><td class="left">03FC-03FF</td><td class="right">1020-1023</td><td class="left">Unused</td></tr>
+<tr><td class="left">VICSCN</td><td class="left">0400-07FF</td><td class="right">1024-2047</td><td class="left">1024 Byte Screen Memory Area</td></tr>
+<tr><td class="left"></td><td class="left">0400-07E7</td><td class="right">1024-2023</td><td class="left">Video Matrix: 25 Lines X 40 Columns</td></tr>
+<tr><td class="left"></td><td class="left">07F8-07FF</td><td class="right">2040-2047</td><td class="left">Sprite Data Pointers</td></tr>
+<tr><td class="left"></td><td class="left">0800-9FFF</td><td class="right">2048-40959</td><td class="left">Normal BASIC Program Space</td></tr>
+<tr><td class="left"></td><td class="left">8000-9FFF</td><td class="right">32768-40959</td><td class="left">VSP Cartridge ROM - 8192 Bytes</td></tr>
+<tr><td class="left"></td><td class="left">A000-BFFF</td><td class="right">40960-49151</td><td class="left">BASIC ROM - 8192 Bytes (or 8K RAM)</td></tr>
+<tr><td class="left"></td><td class="left">C000-CFFF</td><td class="right">49152-53247</td><td class="left">RAM - 4096 Bytes</td></tr>
+<tr><td class="left"></td><td class="left">D000-DFFF</td><td class="right">53248-57343</td><td class="left">Input/Output Devices and Color RAM or Character Generator ROM or RAM - 4096 Bytes</td></tr>
+<tr><td class="left"></td><td class="left">E000-FFFF</td><td class="right">57344-65535</td><td class="left">KERNAL ROM - 8192 Bytes (or 8K RAM)</td></tr>
+</tbody>
+</table>
+
+Source: <a href="http://www.devili.iki.fi/Computers/Commodore/C64/Programmers_Reference/Chapter_5/page_311.html">Commodore 64 Memory Map</a>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-01-06 16:04:04 CET</p>
+<p class="author">Author: Michael Kohl</p>
+<p class="creator">Org version 7.7 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

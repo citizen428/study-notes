@@ -21,3 +21,4 @@ code {
       font-size: 13px;
       line-height: 1.5;
 }
+#table-of-contents li { list-style-type: none; }

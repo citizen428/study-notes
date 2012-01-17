@@ -1,8 +1,14 @@
 #+TITLE: Commodore 64 Hacking
 #+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
-#+STYLE:  <link rel="stylesheet" type="text/css" href="style.css" />
+#+STYLE:  <link rel="stylesheet" type="text/css" href="../style/style.css" />
 #+org-export-html-style-include-default: nil
 Various bits and pieces of C=64 related hacking info.
+
+#+BEGIN_HTML
+<a href="http://flattr.com/thing/461725/Commodore-64-Hacking" target="_blank">
+<img src="http://api.flattr.com/button/flattr-badge-large.png"
+alt="Flattr this" title="Flattr this" border="0" /></a>
+#+END_HTML
 
 * Instruction Set
 |----------+----------------------------------------------|

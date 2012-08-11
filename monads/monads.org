@@ -1,120 +1,104 @@
-Monads
+#+TITLE: Monads
+#+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
+#+STYLE:  <link rel="stylesheet" type="text/css" href="style.css" />
+#+org-export-html-style-include-default: nil
 
-http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads
+a summary of [[http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads][Don't fear the Monads]] by brian beckman
 
-Haskell, but also e.g. LINQ
-  
-category theory; not required for understanding
+#+BEGIN_HTML
+<a href="http://flattr.com/thing/467521/Monads" target="_blank">
+<img src="http://api.flattr.com/button/flattr-badge-large.png"
+alt="Flattr this" title="Flattr this" border="0" /></a>
+#+END_HTML
 
-functional programming:
-* programming with functions
-* first class 
-* function: takes input, returns something
-* functions are not special, they are data too (table lookup)
-* pure = no mutable state
-
-Monads can simulate shared mutable state.
-
-4 stages:
-
-* Functions
-
-types =~ mathematical sets (N, Z, Q, R, C)
-
+* general introduction
+** Haskell, but also e.g. LINQ
+** based on category theory; not required for understanding
+* functional programming
+** programming with functions
+** first class
+** function: takes input, returns something
+** functions are not special, they are data too (table lookup)
+** pure = no mutable state
+*** Monads can simulate shared mutable state.
+* functions
+** types =~ mathematical sets (ℝ, ℂ, ℕ, ℙ, ℚ, ℤ)
+#+BEGIN_SRC haskell
 x: int
 f: int -> int (particular type)
 f: a -> a (any type = generic types)
 g: a -> a
-
-Combining f and g:
-
+#+END_SRC
+** Combining f and g
+#+BEGIN_SRC haskell
 f(g(a)) or g(f(a))
-
-function application =~ method call
-
-f(ga) (g first, f later; left associative -> brackets)
-
-(f . g) a = new function
-
+#+END_SRC
+** function application =~ method call
+#+BEGIN_SRC haskell
+f(ga)     -- (g first, f later; left associative -> brackets)
+(f . g) a -- new function
 (f . g) a == f(ga)
-
-* Monoids
-
-(f . g) = h: a -> a 
-
-taking two things of one type (function) and creating a new one of the
-same type
-
-composition: create complexity from simplicity; types need to line up
-
-monoid: collection of things and a rule for combining them; the rule
-obeys some rules
-
-example: clock 
-rule: (x + y) % 12, e.g. 7 + 10 = 5
-
-rules for the rule:
-
-** x + y + z = (x + y) + z (associativity)
-** x + special_member = x and special_member + 12 = x (unit element aka "zero")
-   
-* Functions
-
-functions under composition form a monoid (same type; otherwise
-monoidal category)
-
-associativity:
+#+END_SRC
+* monoids
+** taking two things of one type (function) and creating a new one of the same type
+#+BEGIN_SRC haskell
+(f . g) == h: a -> a
+#+END_SRC
+** composition: create complexity from simplicity; types need to line up
+** monoid: collection of things and a rule for combining them; the rule obeys some rules
+*** example: clock
+rule: =(x + y) % 12, e.g. 7 + 10 = 5=
+** rules for the rule
+*** =x + y + z = (x + y) + z= (associativity)
+*** =x + special_member = x and special_member + 12 = x= (unit element aka "zero")
+* functions again
+** functions under composition form a monoid (same type; otherwise monoidal category)
+** associativity
+#+BEGIN_SRC haskell
 (f . g) . h = f . (g . h)
-
 f(g(ha)) = f(g(ha))
-
-unit: special function 'id'
-
+#+END_SRC
+** unit: special function 'id'
+#+BEGIN_SRC haskell
 (f . id) = f(id a) = f(a)
-
-* Monads
-
-almost the same as a monoid
-
-Ma = type constructur
-
+#+END_SRC
+* monads
+** almost the same as a monoid
+=Ma= = type constructur
+#+BEGIN_SRC haskell
 f: a -> Ma
 g: a -> Ma
 h: a -> Ma
-
-functions that take an a and return some extra data applied to an a
-
-\ = lambda
-       _                      _
+#+END_SRC
+** functions that take an =a= and return some extra data applied to an =a=
+=\= = lambda
+#+BEGIN_SRC shell-script
 \a -> | (fa)  >>=   \a -> (ga) |
       |  Ma   bind   a ->  Ma  |
       |_                      _|
-
-when you create a monad, you have to implement bind (same rules as monoid)
-
+#+END_SRC
+** when you create a monad, you have to implement =bind= (same rules as monoid)
+#+BEGIN_SRC haskell
 return: a -> Ma (unit)
 
 g: a -> M b
 f: b -> M c
-
----
-How to do it with monoids?
-
+#+END_SRC
+** how to do it with monoids?
+#+BEGIN_SRC haskell
 g: a -> b
 f: b -> c
 
 (f . g) : a -> c <=> (g . g)a = f(ga)
----
-
+--
 \a -> (ga) >>= \b -> (fb)
 a ------------------> Ma
-bind: Mb -> (b -> Mc) -> Mc
-
-Monads are a theory for interacting thing.
-
-Maybe monad:
-http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads#c633313640460000000
-
+#+END_SRC
+** bind: =Mb -> (b -> Mc) -> Mc=
+** Monads are a theory for interacting things.
+** Maybe monad
+taken from ([[http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads#c633313640460000000][source]])
+#+BEGIN_SRC haskell
 -- Here's the data type, it's either nothing, or "Just" a value
 -- this is in the standard library
 data Maybe a = Nothing | Just a
@@ -122,7 +106,6 @@ data Maybe a = Nothing | Just a
 f :: (Maybe Integer) -> Integer
 f Nothing = 0
 f (Just x) = x + 2
-
 
 instance Monad Maybe where
   -- The bind operator for Nothing
@@ -137,12 +120,12 @@ instance Monad Maybe where
 -- The sample code using the lambda syntax
 -- that Brian showed
 z = f >>= ( \fval ->
-    g >>= ( \gval ->  
+    g >>= ( \gval ->
     h >>= ( \hval -> return (fval+gval+hval ) ) ) )
 
 -- The following is exactly the same as the three lines above
 z2 :: (Integral a, Monad m) => m a
-z2 = do 
+z2 = do
    fval <- f
    gval <- g
    hval <- h
@@ -152,7 +135,6 @@ main :: IO ()
 main = do
   (readLn :: IO Integer) >>= (\x ->
   putStrLn ("You have entered the number " ++ show x))
-
 
 data State s a = State (\s -> (s,a))
 
@@ -185,4 +167,4 @@ runState 0 test2  -- (("hi",1),(42,2),('c',3))
 readLn :: IO a
 show :: a -> String
 putStrLn :: String -> IO ()
-
+#+END_SRC

@@ -1,6 +1,6 @@
 #+TITLE: The Typeclassopedia - A summary
 #+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
-#+STYLE:  <link rel="stylesheet" type="text/css" href="style/style.css" />
+#+STYLE:  <link rel="stylesheet" type="text/css" href="style.css" />
 #+org-export-html-style-include-default: nil
 This is a summary of Brent Yorgey's excellent article "The
 Typeclassopedia", originally published in issue [[http://www.haskell.org/wikiupload/8/85/TMR-Issue13.pdf][#13]] of "[[http://themonadreader.wordpress.com/][The Monad Reader]]".

@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>Postgres Performance Tuning</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-01-18 18:26:37 CET"/>
+<meta name="author" content="Michael Kohl"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Postgres Performance Tuning</h1>
+
+<p>A summary of <a href="http://fosslc.org/drupal/content/postgresql-secret-weapon-high-performance-ruby-rails-applications">PostgreSQL as a secret weapon for high-performance Ruby on Rails applications</a> and <a href="http://railsonpostgresql.com/">Rails on PostgreSQL</a>.
+</p>
+
+
+<a href="http://flattr.com/thing/467509/Postgres-Performance-Tuning" target="_blank">
+<img src="http://api.flattr.com/button/flattr-badge-large.png"
+alt="Flattr this" title="Flattr this" border="0" /></a>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Rails as ORM </a></li>
+<li><a href="#sec-2">2 Optimizing Rails with PostgreSQL </a></li>
+<li><a href="#sec-3">3 PostgreSQL Experience </a></li>
+<li><a href="#sec-4">4 PostgreSQL Approaches </a></li>
+<li><a href="#sec-5">5 Optimize DB </a></li>
+<li><a href="#sec-6">6 Article Configuring PostgreSQL for Pretty Good Performance </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Rails as ORM </h2>
+<div class="outline-text-2" id="text-1">
+
+<ul>
+<li id="sec-1-1">performance <br/>
+<ul>
+<li id="sec-1-1-1"><code>:include</code> does a join <br/>
+
+
+
+<pre class="src src-ruby">tasks = <span style="color: #9B703F;">Task</span>.find(<span style="color: #CF6A4C;">:all</span>, <span style="color: #CF6A4C;">:include</span> =&gt; <span style="color: #CF6A4C;">:tags</span>)
+
+select * from task
+select * from tags inner join tasks_tags
+on tags.id = tasks_tags.tag_id
+where tasks_tags.task_id <span style="color: #CDA869;">in</span> (1, 2, 3, ...)
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-2">sometimes pure Ruby is just too slow, replace with <code>select_by_sql</code> <br/>
+example: <code>acts_as_tree</code> generates n+1 queries
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-3">how to measure DB performance impacts of new code? <br/>
+query tests
+</li>
+</ul>
+<ul>
+<li id="sec-1-1-4">write migrations in sql instead of rails dsl <br/>
+unless targeting multiple RDBMS
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2">data integrity <br/>
+<ul>
+<li id="sec-1-2-1">rails can not assure data ingegrity <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-2">use constraints, rules and triggers to protect data integrity, not for business logic <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-3">FK constraints: everything should be <code>RESTRICT</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2-4"><code>CASCADE</code> is a smell <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Optimizing Rails with PostgreSQL </h2>
+<div class="outline-text-2" id="text-2">
+
+<ul>
+<li id="sec-2-1">Ruby performance problems <br/>
+<ul>
+<li id="sec-2-1-1">mostly GC <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-2">CPU bound (buy faster CPUs, not more) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-1-3">doesn't parallelize <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2">performance tests (<code>ActionController::IntegrationTest</code>) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3">scalability is no substitute for performance <br/>
+delegate as much work as possible to the DB!
+</li>
+</ul>
+<ul>
+<li id="sec-2-4">Rails performance problems <br/>
+<ul>
+<li id="sec-2-4-1">attribute preloading (slow, takes memory) <br/>
+non-standard Postgres array function preloads data into column
+
+
+
+<pre class="src src-ruby">tasks = <span style="color: #9B703F;">Task</span>.find(<span style="color: #CF6A4C;">:all</span>, <span style="color: #CF6A4C;">:select</span> =&gt; <span style="color: #8F9D6A;">"*,</span>
+<span style="color: #8F9D6A;">  array(select tags.name from tags inner join tasks_tags</span>
+<span style="color: #8F9D6A;">  on (tags.id = tasks_tags.tag_id)</span>
+<span style="color: #8F9D6A;">  where tasks_taksks.task_id = tasks.id) as tag_names</span>
+<span style="color: #8F9D6A;">"</span>)
+</pre>
+
+<p>
+adds tag_names as extra column to tasks
+3x faster because RoR does not instantiate objects from 2 tables
+</p></li>
+</ul>
+<ul>
+<li id="sec-2-4-2">access control <br/>
+<code>bool_or</code> SQL function
+</li>
+</ul>
+<ul>
+<li id="sec-2-4-3">aggregations <br/>
+use lots of memory
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> PostgreSQL Experience </h2>
+<div class="outline-text-2" id="text-3">
+
+<ul>
+<li id="sec-3-1">advantages <br/>
+<ul>
+<li id="sec-3-1-1">standard compliant <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-2">documentation <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-3">sustained development <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-4"><code>EXPLAIN ANALYZE</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-5">deadlock detection <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-6">replication (warm and hot standby) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-7">recursive queries <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-8">ordering for aggregates <br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-3-2">disadvantages <br/>
+<ul>
+<li id="sec-3-2-1">pagination with limit and offset <br/>
+subselects are executed limit + offset times!
+</li>
+</ul>
+<ul>
+<li id="sec-3-2-2"><code>in()</code> with subselect uses joins <br/>
+use <code>any(array ())</code> instead of <code>in()</code>;
+forces subselect to avoid a join;
+only do this if you are sure, otherwise trust planner
+</li>
+</ul>
+<ul>
+<li id="sec-3-2-3">generated queries do joins before subselects <br/>
+rewrite query to force subselects before joins
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> PostgreSQL Approaches </h2>
+<div class="outline-text-2" id="text-4">
+
+<ul>
+<li id="sec-4-1">benchmarking/performance <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-2">distrust vendors <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-3">sane approach to commodity hardware <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-4">culture of operations <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-5">release management <br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Optimize DB </h2>
+<div class="outline-text-2" id="text-5">
+
+<ul>
+<li id="sec-5-1">EXPLAIN ANALYZE <br/>
+also run it in cold state, needs clearing of page caches
+
+
+
+<pre class="src src-shell-script">sudo echo 3 | sudo tee /proc/sys/vm/drop_caches=
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-5-2">postgres config <br/>
+
+
+
+<pre class="src src-ruby">effective_cache size = &lt;%= ram_for_database.to_i * 3/4 %&gt;<span style="color: #9B703F;">MB</span>
+shared_buffers = &lt;<span style="color: #8F9D6A;">%= ram_for_database.to_i / 2 %&gt;MB=</span>
+work_mem = &lt;%= 2**(<span style="color: #9B703F;">Math</span>.log(ram_for_database.to_i / expected_max_active_connections.to_i)/<span style="color: #9B703F;">Math</span>.log(2)).floor %&gt;<span style="color: #9B703F;">MB</span>
+maintenance_work_mem = &lt;%= 2**(<span style="color: #9B703F;">Math</span>.log(ram_for_database.to_i / 16)/<span style="color: #9B703F;">Math</span>.log(2)).floor %&gt;<span style="color: #9B703F;">MB</span>
+synchronous_commit = on
+checkpoint_segments = 16 (?)
+wal_buffers = 8MB (?)
+autovacuum = on
+effective_io_concurrency = 4 (?)
+</pre>
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Article <a href="http://www.linux.com/learn/tutorials/394523-configuring-postgresql-for-pretty-good-performance">Configuring PostgreSQL for Pretty Good Performance</a> </h2>
+<div class="outline-text-2" id="text-6">
+
+<ul>
+<li id="sec-6-1"><code>shared_buffers</code>: ~25% of syst em memory, not more than about 8GB <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-2"><code>work_mem</code>: 4MB to 64MB, hard to find good value <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-3"><code>maintenance_work_mem</code>: ~5% of system memory, not more than 512MB <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-4"><code>wal_buffers</code>: around 1MB, on busy systems up to about 16MB <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-5"><code>checkpoint_segments</code>: reasonable starting value around 30 <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-6"><code>checkpoint_completion_target</code>: raise from 0.5 to 0.9 <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-7"><code>checkpoint_timeout</code>: raise to around 15 minutes <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-8"><code>random_page_cost</code>: try setting to 2.0 (even less if DB fits into RAM) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-9"><code>effective_cache_size</code>: up to 75% of available memory <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-10"><code>synchronous_commit</code>: off <br/>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-01-18 18:26:37 CET</p>
+<p class="author">Author: Michael Kohl</p>
+<p class="creator">Org version 7.7 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

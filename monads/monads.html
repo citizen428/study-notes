@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>Monads</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-01-18 18:53:36 CET"/>
+<meta name="author" content="Michael Kohl"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Monads</h1>
+
+<p>a summary of <a href="http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads">Don't fear the Monads</a> by brian beckman
+</p>
+
+
+<a href="http://flattr.com/thing/467521/Monads" target="_blank">
+<img src="http://api.flattr.com/button/flattr-badge-large.png"
+alt="Flattr this" title="Flattr this" border="0" /></a>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 general introduction </a></li>
+<li><a href="#sec-2">2 functional programming </a></li>
+<li><a href="#sec-3">3 functions </a></li>
+<li><a href="#sec-4">4 monoids </a></li>
+<li><a href="#sec-5">5 functions again </a></li>
+<li><a href="#sec-6">6 monads </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> general introduction </h2>
+<div class="outline-text-2" id="text-1">
+
+<ul>
+<li id="sec-1-1">Haskell, but also e.g. LINQ <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-1-2">based on category theory; not required for understanding <br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> functional programming </h2>
+<div class="outline-text-2" id="text-2">
+
+<ul>
+<li id="sec-2-1">programming with functions <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2">first class <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-3">function: takes input, returns something <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-4">functions are not special, they are data too (table lookup) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-5">pure = no mutable state <br/>
+<ul>
+<li id="sec-2-5-1">Monads can simulate shared mutable state. <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> functions </h2>
+<div class="outline-text-2" id="text-3">
+
+<ul>
+<li id="sec-3-1">types =~ mathematical sets (ℝ, ℂ, ℕ, ℙ, ℚ, ℤ) <br/>
+
+
+
+<pre class="src src-haskell">x<span style="color: #9B703F;">:</span> int
+f<span style="color: #9B703F;">:</span> int <span style="color: #7587A6;">-&gt;</span> int (particular <span style="color: #CDA869;">type</span>)
+f<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> a (any <span style="color: #CDA869;">type</span> <span style="color: #7587A6;">=</span> generic types)
+g<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> a
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-3-2">Combining f and g <br/>
+
+
+
+<pre class="src src-haskell"><span style="color: #9B703F;">f</span>(g(a)) or g(f(a))
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-3-3">function application =~ method call <br/>
+
+
+
+<pre class="src src-haskell"><span style="color: #9B703F;">f</span>(ga)     <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">(g first, f later; left associative -&gt; brackets)</span>
+(f <span style="color: #7587A6;">.</span> g) a <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">new function</span>
+(f <span style="color: #7587A6;">.</span> g) a <span style="color: #7587A6;">==</span> f(ga)
+</pre>
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> monoids </h2>
+<div class="outline-text-2" id="text-4">
+
+<ul>
+<li id="sec-4-1">taking two things of one type (function) and creating a new one of the same type <br/>
+
+
+
+<pre class="src src-haskell">(f <span style="color: #7587A6;">.</span> g) <span style="color: #7587A6;">==</span> h<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> a
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-4-2">composition: create complexity from simplicity; types need to line up <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-3">monoid: collection of things and a rule for combining them; the rule obeys some rules <br/>
+<ul>
+<li id="sec-4-3-1">example: clock <br/>
+rule: <code>(x + y) % 12, e.g. 7 + 10 = 5</code>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-4-4">rules for the rule <br/>
+<ul>
+<li id="sec-4-4-1"><code>x + y + z = (x + y) + z</code> (associativity) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-4-2"><code>x + special_member = x and special_member + 12 = x</code> (unit element aka "zero") <br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> functions again </h2>
+<div class="outline-text-2" id="text-5">
+
+<ul>
+<li id="sec-5-1">functions under composition form a monoid (same type; otherwise monoidal category) <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-5-2">associativity <br/>
+
+
+
+<pre class="src src-haskell">(f <span style="color: #7587A6;">.</span> g) <span style="color: #7587A6;">.</span> h <span style="color: #7587A6;">=</span> f <span style="color: #7587A6;">.</span> (g <span style="color: #7587A6;">.</span> h)
+<span style="color: #9B703F;">f</span>(g(ha)) <span style="color: #7587A6;">=</span> f(g(ha))
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-5-3">unit: special function 'id' <br/>
+
+
+
+<pre class="src src-haskell">(f <span style="color: #7587A6;">.</span> id) <span style="color: #7587A6;">=</span> f(id a) <span style="color: #7587A6;">=</span> f(a)
+</pre>
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> monads </h2>
+<div class="outline-text-2" id="text-6">
+
+<ul>
+<li id="sec-6-1">almost the same as a monoid <br/>
+<code>Ma</code> = type constructur
+
+
+
+<pre class="src src-haskell">f<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Ma</span>
+g<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Ma</span>
+h<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Ma</span>
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-6-2">functions that take an <code>a</code> and return some extra data applied to an <code>a</code> <br/>
+<code>\</code> = lambda
+
+
+
+<pre class="src src-shell-script">\a -&gt; | (fa)  &gt;&gt;=   \a -&gt; (ga) |
+      |  Ma   bind   a -&gt;  Ma  |
+      |_                      _|
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-6-3">when you create a monad, you have to implement <code>bind</code> (same rules as monoid) <br/>
+
+
+
+<pre class="src src-haskell">return<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Ma</span> (unit)
+
+g<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">M</span> b
+f<span style="color: #9B703F;">:</span> b <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">M</span> c
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-6-4">how to do it with monoids? <br/>
+
+
+
+<pre class="src src-haskell">g<span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> b
+f<span style="color: #9B703F;">:</span> b <span style="color: #7587A6;">-&gt;</span> c
+
+(f <span style="color: #7587A6;">.</span> g) <span style="color: #9B703F;">:</span> a <span style="color: #7587A6;">-&gt;</span> c <span style="color: #7587A6;">&lt;=&gt;</span> (g <span style="color: #7587A6;">.</span> g)a <span style="color: #7587A6;">=</span> f(ga)
+<span style="color: #5F5A60;">--</span>
+<span style="color: #7587A6;">\</span>a <span style="color: #7587A6;">-&gt;</span> (ga) <span style="color: #7587A6;">&gt;&gt;=</span> <span style="color: #7587A6;">\</span>b <span style="color: #7587A6;">-&gt;</span> (fb)
+a <span style="color: #9B703F;">------------------&gt;</span> <span style="color: #9B703F;">Ma</span>
+</pre>
+
+</li>
+</ul>
+<ul>
+<li id="sec-6-5">bind: <code>Mb -&gt; (b -&gt; Mc) -&gt; Mc</code> <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-6">Monads are a theory for interacting things. <br/>
+</li>
+</ul>
+<ul>
+<li id="sec-6-7">Maybe monad <br/>
+taken from (<a href="http://channel9.msdn.com/Shows/Going+Deep/Brian-Beckman-Dont-fear-the-Monads#c633313640460000000">source</a>)
+
+
+
+<pre class="src src-haskell"><span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">Here's the data type, it's either nothing, or "Just" a value</span>
+<span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">this is in the standard library</span>
+<span style="color: #CDA869;">data</span> <span style="color: #9B703F;">Maybe</span> a <span style="color: #7587A6;">=</span> <span style="color: #9B703F;">Nothing</span> <span style="color: #7587A6;">|</span> <span style="color: #9B703F;">Just</span> a
+
+<span style="color: #9B703F;">f</span> <span style="color: #7587A6;">::</span> (<span style="color: #9B703F;">Maybe</span> <span style="color: #9B703F;">Integer</span>) <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Integer</span>
+<span style="color: #9B703F;">f</span> <span style="color: #9B703F;">Nothing</span> <span style="color: #7587A6;">=</span> 0
+<span style="color: #9B703F;">f</span> (<span style="color: #9B703F;">Just</span> x) <span style="color: #7587A6;">=</span> x <span style="color: #7587A6;">+</span> 2
+
+<span style="color: #CDA869;">instance</span> <span style="color: #9B703F;">Monad</span> <span style="color: #9B703F;">Maybe</span> <span style="color: #CDA869;">where</span>
+  <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">The bind operator for Nothing</span>
+  (<span style="color: #7587A6;">&gt;&gt;=</span>) <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">Maybe</span> a <span style="color: #7587A6;">-&gt;</span> (a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">Maybe</span> b) <span style="color: #7587A6;">-&gt;</span> (<span style="color: #9B703F;">Maybe</span> b)
+  <span style="color: #9B703F;">Nothing</span> <span style="color: #7587A6;">&gt;&gt;=</span> f <span style="color: #7587A6;">=</span> <span style="color: #9B703F;">Nothing</span>
+  <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">The bind operator for Just x</span>
+  <span style="color: #9B703F;">Just</span> x <span style="color: #7587A6;">&gt;&gt;=</span> f <span style="color: #7587A6;">=</span> f x
+
+  <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">the "unit", called "return"</span>
+  return <span style="color: #7587A6;">=</span> <span style="color: #9B703F;">Just</span>
+
+<span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">The sample code using the lambda syntax</span>
+<span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">that Brian showed</span>
+<span style="color: #9B703F;">z</span> <span style="color: #7587A6;">=</span> f <span style="color: #7587A6;">&gt;&gt;=</span> ( <span style="color: #7587A6;">\</span>fval <span style="color: #7587A6;">-&gt;</span>
+    g <span style="color: #7587A6;">&gt;&gt;=</span> ( <span style="color: #7587A6;">\</span>gval <span style="color: #7587A6;">-&gt;</span>
+    h <span style="color: #7587A6;">&gt;&gt;=</span> ( <span style="color: #7587A6;">\</span>hval <span style="color: #7587A6;">-&gt;</span> return (fval<span style="color: #7587A6;">+</span>gval<span style="color: #7587A6;">+</span>hval ) ) ) )
+
+<span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">The following is exactly the same as the three lines above</span>
+<span style="color: #9B703F;">z2</span> <span style="color: #7587A6;">::</span> (<span style="color: #9B703F;">Integral</span> a, <span style="color: #9B703F;">Monad</span> m) <span style="color: #7587A6;">=&gt;</span> m a
+<span style="color: #9B703F;">z2</span> <span style="color: #7587A6;">=</span> <span style="color: #CDA869;">do</span>
+   fval <span style="color: #7587A6;">&lt;-</span> f
+   gval <span style="color: #7587A6;">&lt;-</span> g
+   hval <span style="color: #7587A6;">&lt;-</span> h
+   return (fval<span style="color: #7587A6;">+</span>gval<span style="color: #7587A6;">+</span>hval)
+
+<span style="color: #9B703F;">main</span> <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">IO</span> <span style="color: #9B703F;">()</span>
+<span style="color: #9B703F;">main</span> <span style="color: #7587A6;">=</span> <span style="color: #CDA869;">do</span>
+  (readLn <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">IO</span> <span style="color: #9B703F;">Integer</span>) <span style="color: #7587A6;">&gt;&gt;=</span> (<span style="color: #7587A6;">\</span>x <span style="color: #7587A6;">-&gt;</span>
+  putStrLn (<span style="color: #8F9D6A;">"You have entered the number "</span> <span style="color: #7587A6;">++</span> show x))
+
+<span style="color: #CDA869;">data</span> <span style="color: #9B703F;">State</span> s a <span style="color: #7587A6;">=</span> <span style="color: #9B703F;">State</span> (<span style="color: #7587A6;">\</span>s <span style="color: #7587A6;">-&gt;</span> (s,a))
+
+<span style="color: #CDA869;">instance</span> <span style="color: #9B703F;">Monad</span> (<span style="color: #9B703F;">State</span> s) <span style="color: #CDA869;">where</span>
+  <span style="color: #9B703F;">State</span> m <span style="color: #7587A6;">&gt;&gt;=</span> f <span style="color: #7587A6;">=</span> <span style="color: #7587A6;">\</span>s <span style="color: #7587A6;">-&gt;</span> <span style="color: #CDA869;">let</span> (s',x) <span style="color: #7587A6;">=</span> m s <span style="color: #CDA869;">in</span> (f x) s'
+  return x <span style="color: #7587A6;">=</span> <span style="color: #7587A6;">\</span>s <span style="color: #7587A6;">-&gt;</span> (s,x)
+
+<span style="color: #9B703F;">put</span> <span style="color: #7587A6;">::</span> s <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">State</span> s <span style="color: #9B703F;">()</span>
+<span style="color: #9B703F;">put</span> s <span style="color: #7587A6;">=</span> <span style="color: #7587A6;">\</span><span style="color: #CDA869;">_</span> <span style="color: #7587A6;">-&gt;</span> (s,<span style="color: #9B703F;">()</span>)
+
+<span style="color: #9B703F;">get</span> <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">Sate</span> s s
+<span style="color: #9B703F;">get</span> <span style="color: #7587A6;">=</span> <span style="color: #7587A6;">\</span>s <span style="color: #7587A6;">-&gt;</span> (s,s)
+
+<span style="color: #9B703F;">runState</span> <span style="color: #7587A6;">::</span> s <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">State</span> s a <span style="color: #7587A6;">-&gt;</span> a
+<span style="color: #9B703F;">runState</span> s m <span style="color: #7587A6;">=</span> m s
+
+<span style="color: #9B703F;">test</span> z <span style="color: #7587A6;">=</span> <span style="color: #CDA869;">do</span>
+  x <span style="color: #7587A6;">&lt;-</span> get
+  put (x<span style="color: #7587A6;">+</span>1)
+  return (z, x<span style="color: #7587A6;">+</span>1)
+
+<span style="color: #9B703F;">test2</span> <span style="color: #7587A6;">=</span> <span style="color: #CDA869;">do</span>
+  a <span style="color: #7587A6;">&lt;-</span> test <span style="color: #8F9D6A;">"hi"</span>
+  b <span style="color: #7587A6;">&lt;-</span> test 42
+  c <span style="color: #7587A6;">&lt;-</span> test <span style="color: #8F9D6A;">'c'</span>
+  return (a,b,c)
+
+<span style="color: #9B703F;">runState</span> 0 test2  <span style="color: #5F5A60;">-- </span><span style="color: #5F5A60;">(("hi",1),(42,2),('c',3))</span>
+
+<span style="color: #9B703F;">readLn</span> <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">IO</span> a
+<span style="color: #9B703F;">show</span> <span style="color: #7587A6;">::</span> a <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">String</span>
+<span style="color: #9B703F;">putStrLn</span> <span style="color: #7587A6;">::</span> <span style="color: #9B703F;">String</span> <span style="color: #7587A6;">-&gt;</span> <span style="color: #9B703F;">IO</span> <span style="color: #9B703F;">()</span>
+</pre>
+
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-01-18 18:53:36 CET</p>
+<p class="author">Author: Michael Kohl</p>
+<p class="creator">Org version 7.7 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

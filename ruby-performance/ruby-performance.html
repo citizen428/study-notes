@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Debugging Ruby Performance</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="title" content="Debugging Ruby Performance"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2012-02-02 09:29:47 CET"/>
+<meta name="author" content="Michael Kohl"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">Debugging Ruby Performance</h1>
+
+<p>Aman Gupta at Frozen Rails 2011, 2011-09-21
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 lsof - list open files</a></li>
+<li><a href="#sec-2">2 tcpdump - dump traffic on a network</a></li>
+<li><a href="#sec-3">3 strace - trace system calls and signals</a></li>
+<li><a href="#sec-4">4 ltrace - trace library calls</a></li>
+<li><a href="#sec-5">5 rbtrace - trace ruby method calls</a></li>
+<li><a href="#sec-6">6 perftools - by Google</a></li>
+<li><a href="#sec-7">7 perftools.rb - perftools for Ruby code</a></li>
+<li><a href="#sec-8">8 rack-perftools - Rack middleware for perftools</a></li>
+<li><a href="#sec-9">9 GDB - the GNU debugger</a></li>
+<li><a href="#sec-10">10 gdb.rb - gdb hooks for MRI/REE (and some for YARV)</a></li>
+<li><a href="#sec-11">11 memprof - a heap visualizer for ruby</a></li>
+<li><a href="#sec-12">12 graphite - time series analytics</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> lsof - list open files</h2>
+<div class="outline-text-2" id="text-1">
+
+<ul>
+<li id="sec-1-1"><code>lsof -nPp &lt;pid&gt;</code><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> tcpdump - dump traffic on a network</h2>
+<div class="outline-text-2" id="text-2">
+
+<ul>
+<li id="sec-2-1"><code>tcpdump -i eth0 -s 0 -nqA &lt;expr&gt;</code><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-2-2"><code>tcpdump -w &lt;file&gt;</code> f. Wireshark<br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> strace - trace system calls and signals</h2>
+<div class="outline-text-2" id="text-3">
+
+<ul>
+<li id="sec-3-1"><code>strace -cp &lt;pid&gt;</code><br/>
+<ul>
+<li id="sec-3-1-1">summary mode<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-3-1-2"><code>-c</code> count time<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-3-2"><code>strace -ttTP &lt;pid&gt; -o file</code><br/>
+<ul>
+<li id="sec-3-2-1">tracing mode<br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> ltrace - trace library calls</h2>
+<div class="outline-text-2" id="text-4">
+
+<ul>
+<li id="sec-4-1"><code>ltrace -c</code><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-4-2"><code>ltrace -ttT -e</code><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> rbtrace - trace ruby method calls</h2>
+<div class="outline-text-2" id="text-5">
+
+<ul>
+<li id="sec-5-1"><a href="http://github.com/tmm1/rbtrace">http://github.com/tmm1/rbtrace</a><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-5-2"><code>rbtrace -p &lt;pid&gt; -m &lt;method&gt;</code><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-5-3"><code>rbtrace -p &lt;pid&gt; --slow=50</code><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> perftools - by Google</h2>
+<div class="outline-text-2" id="text-6">
+
+<ul>
+<li id="sec-6-1"><code>pprof ruby ruby.prof --text</code><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> perftools.rb - perftools for Ruby code</h2>
+<div class="outline-text-2" id="text-7">
+
+</div>
+
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> rack-perftools - Rack middleware for perftools</h2>
+<div class="outline-text-2" id="text-8">
+
+</div>
+
+</div>
+
+<div id="outline-container-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> GDB - the GNU debugger</h2>
+<div class="outline-text-2" id="text-9">
+
+<ul>
+<li id="sec-9-1"><code>gdb &lt;executable&gt;</code><br/>
+</li>
+</ul>
+<ul>
+<li id="sec-9-2"><code>gdb attach &lt;pid&gt;</code><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-10" class="outline-2">
+<h2 id="sec-10"><span class="section-number-2">10</span> gdb.rb - gdb hooks for MRI/REE (and some for YARV)</h2>
+<div class="outline-text-2" id="text-10">
+
+</div>
+
+</div>
+
+<div id="outline-container-11" class="outline-2">
+<h2 id="sec-11"><span class="section-number-2">11</span> memprof - a heap visualizer for ruby</h2>
+<div class="outline-text-2" id="text-11">
+
+<ul>
+<li id="sec-11-1"><a href="http://memprof.com">http://memprof.com</a><br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> graphite - time series analytics</h2>
+<div class="outline-text-2" id="text-12">
+
+<ul>
+<li id="sec-12-1"><a href="http://graphite.wikidot.com/">http://graphite.wikidot.com/</a><br/>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2012-02-02 09:29:47 CET</p>
+<p class="author">Author: Michael Kohl</p>
+<p class="creator">Org version 7.8.03 with Emacs version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+</body>
+</html>

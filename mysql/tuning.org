@@ -1,0 +1,46 @@
+#+TITLE: MySQL Performance Tuning
+#+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
+#+org-export-html-style-include-default: nil
+* Scripts
+** [[http://www.day32.com/MySQL/tuning-primer.sh][tuning-primer.sh]]
+** [[http://mysqltuner.pl][mysqltuner.pl]]
+* Query Cache
+** will not always increase performance
+** don't size excessively large
+** size in tens of MB usually beneficial ([[http://dev.mysql.com/doc/refman/5.1/en/query-cache.html][source]])
+** mysqltuner.pl says "Increasing the query_cache size over 128M may reduce performance"
+** systems with frequent =INSERT= statements might benefit less due to constant cache invalidation
+** =show variables like ‘query%’;=
+** =show status like ‘qc%’;=
+** see also [[http://www.mysqlperformanceblog.com/2006/07/27/mysql-query-cache/][MySQLQuery Cache]] on [[http://www.mysqlperformanceblog.com][MySQL Performance Blog]]
+* Key Buffer
+** taken from [[http://www.semanticblog.eu/2010/01/25/mysql-key-buffer-optimierung/][MySQL Key Buffer Optimierung]] and [[http://blog.netways.de/2008/09/17/mysql-performance-serie-teil-5-key-buffer/][MySQL Performance Serie – Teil 5: Key-Buffer]]
+** between 25% and 50% of total memory on dedicated DB server
+** smaller if less indices
+** check key reads
+=mysqladmin extended-status -uadmin -p -r -i 10 | grep Key_reads=
+** determine key hit ratio (closer to 100 is better)
+=100 – (key_reads * 100 / key_read_requests)=
+** percentage of buffer in use
+=100 – ( (Key_blocks_unused * key_cache_block_size) * 100 / key_buffer_size )=
+** get values from
+=SHOW VARIABLES LIKE ‘key_%’;=
+=SHOW STATUS LIKE ‘Key_%’;=
+* Indices
+** find missing indices through slow query log and =EXPLAIN=
+** maximum one index per query (the one with less rows)
+* =OPTIMIZE TABLE= on fragmented tables
+** [[http://blog.softlayer.com/2011/mysql-slow-check-for-fragmentation/][query to find fragmented tables]]
+#+BEGIN_SRC sql
+  SELECT TABLE_SCHEMA, TABLE_NAME, CONCAT(ROUND(data_length / ( 1024*1024 ), 2), 'MB') DATA, CONCAT(ROUND(data_free  / ( 1024 * 1024 ), 2), 'MB')FREE
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA NOT IN ('information_schema','mysql') and Data_free < 0;
+#+END_SRC
+** [[http://forums.mysql.com/read.php?35,273944,277927#msg-277927][rule of thumb for outage time]]
+Table Size is KB = Seconds of outage
+Table Size is MB = Minutes of outage
+Table Size is GB = Hours of outage
+** fix with =optimize table <table_name>;= or =alter table <table_name> = INNODB;=
+* Performance Monitoring Tools
+** [[http://jeremy.zawodny.com/mysql/mytop/][mytop]]
+** [[http://code.google.com/p/innotop/][innotop]]

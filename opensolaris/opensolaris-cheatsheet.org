@@ -1,0 +1,45 @@
+* pfexec (sudo)
+* /etc/exports -> /etc/dfs/dfstab
+edit file and exportfs -a or svcadm restart svc:/network/nfs/server
+share /path / unshare /path
+* processes (ptools)
+** prstat (top)
+** pgrep - find pids
+** pstack - call stack of a process
+** pfiles - find open files for process
+** pcred - display process credentials (effective / real UID & GID)
+** pldd - show linked libraries
+** psig - list signal actions and handlers
+** man 1 proc
+* monitoring
+** dtrace - dynamic tracing compiler and tracing utility
+** vmstat
+** mpstat (like vmstat but per processor)
+** iostat
+** netstat
+** psrinfo -v (cat /proc/cpuinfo)
+** prtconf (cat /proc/meminfo)
+* kernel
+** modinfo
+** modload
+** modunload
+** scanpci
+* package management
+** pkg
+* services
+** svcs - view services
+** svcadm - administer services
+** svccfg - add or change services
+* disks and storage media
+** format
+** rmformat (removable media)
+** vold / volcheck
+** cdrw (cdrecord)
+* network
+** ifconfig
+** ndd - get/set driver configuration parameters (like miitool)
+** dhcpagent
+** ipfilter
+** dladm - vlans, bonding
+* device management
+** devfsadm

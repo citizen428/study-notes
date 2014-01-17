@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Rails patterns &amp; best practices</title>
+<!-- 2014-01-17 Fri 12:38 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Michael Kohl" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Rails patterns &amp; best practices</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. models</a></li>
+<li><a href="#sec-2">2. controllers</a></li>
+<li><a href="#sec-3">3. general</a></li>
+</ul>
+</div>
+</div>
+<p>
+a summary of the courses <a href="https://www.codeschool.com/courses/rails-4-patterns">rails 4 patterns</a> and the older <a href="https://www.codeschool.com/courses/rails-best-practices">rails best
+practices</a> (rails 3) by <a href="https://www.codeschool.com">code school</a>, as well as some additional material.
+</p>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> models</h2>
+<div class="outline-text-2" id="text-1">
+</div><ol class="org-ol"><li>only use <a href="http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html">callbacks</a> for manipulating internal state, no tight coupling with other models<br  /></li>
+<li>set callbacks as <code>protected</code><br  /></li>
+<li>avoid "<a href="http://en.wikipedia.org/wiki/God_object">god objects</a>": anti pattern because it violates <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">Single Responsibility Principle</a><br  /></li>
+<li>not everything needs to be database backed -&gt; encapsulate <a href="http://en.wikipedia.org/wiki/Business_logic">business logic</a> out of DB backed models; also useful for proper <a href="http://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> architecture.<br  /></li>
+<li>keep serialization out of controllers by using <code>ActiveModel::Serializers</code> (point <code>Gemfile</code> entry to <a href="https://github.com/rails-api/active_model_serializers">GitHub repo</a>)<br  /></li>
+<li>use <a href="http://apidock.com/rails/ActiveRecord/Calculations/pluck">pluck</a> method if you don't need AR objects (also see <a href="http://gavinmiller.io/2013/getting-to-know-pluck-and-select/">Getting to Know Pluck and Select</a> by Gavin Miller)<br  /></li>
+<li><code>ActiveSupport::Memoizable</code> was deprecated in Rails 3.1; use <code>||=</code> or <a href="https://github.com/matthewrudy/memoist">memoist</a><br  /></li></ol>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> controllers</h2>
+<div class="outline-text-2" id="text-2">
+</div><ol class="org-ol"><li>ask object to perform an action, don't query its internal state (business logic -&gt; model)<br  /></li>
+<li>uses <a href="http://edgeguides.rubyonrails.org/active_record_querying.html#scopes">scopes</a> in model instead of logic in controller (also see <a href="http://apidock.com/rails/ActiveRecord/Scoping/Default/ClassMethods/default_scope">default<sub>scope</sub></a> and <a href="http://api.rubyonrails.org/">unscoped</a>)<br  /></li>
+<li>use <a href="http://api.rubyonrails.org/classes/ActiveRecord/SpawnMethods.html#method-i-merge">merge</a> method to merge scopes instead of duplicating conditions (last scope wins in case of shared column)<br  /></li>
+<li>filter sensitive parameters from logs by using <code>config.filter\_parameters</code> in <code>config/application.rb</code><br  /></li>
+<li>good examples for filters: authorization, logging, wizards<br  /></li>
+<li>use presenters to avoid complex controller actions<br  /></li>
+<li>use the <a href="http://api.rubyonrails.org/classes/ActionController/Responder.html">new responder syntax</a> (<code>respond_to</code> class method + <code>respond_with</code>)<br  /></li></ol>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> general</h2>
+<div class="outline-text-2" id="text-3">
+</div><ol class="org-ol"><li>avoid duplication by using <a href="http://api.rubyonrails.org/classes/ActiveSupport/Concern.html">concerns</a> (see <a href="http://37signals.com/svn/posts/3372-put-chubby-models-on-a-diet-with-concerns">Put chubby models on a diet with concerns</a> by dhh)<br  /></li>
+<li>use decorators for view-related business logic (<code>app/decorators</code>)<br  /></li>
+<li>specify ruby version in <a href="http://bundler.io/v1.5/gemfile.html">Gemfile</a><br  /></li>
+<li>use <a href="https://github.com/ddollar/foreman">foreman</a> for Procfile-backed apps<br  /></li></ol>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Michael Kohl</p>
+<p class="date">Created: 2014-01-17 Fri 12:38</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.3.1 (<a href="http://orgmode.org">Org</a> mode 8.2.4)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

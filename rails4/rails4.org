@@ -1,0 +1,44 @@
+#+title: Rails patterns & best practices
+#+author: Michael Kohl
+#+OPTIONS: H:1 num:f toc:t \n:nil @:t ::t |:t
+#+STYLE:  <link rel="stylesheet" type="text/css" href="style.css" />
+#+org-export-html-style-include-default: nil
+
+a summary of the courses [[https://www.codeschool.com/courses/rails-4-patterns][rails 4 patterns]] and the older [[https://www.codeschool.com/courses/rails-best-practices][rails best
+practices]] (rails 3) by [[https://www.codeschool.com][code school]], as well as some additional material.
+
+* models
+** only use [[http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html][callbacks]] for manipulating internal state, no tight coupling with other models
+** set callbacks as =protected=
+** avoid "[[http://en.wikipedia.org/wiki/God_object][god objects]]": anti pattern because it violates [[http://en.wikipedia.org/wiki/Single_responsibility_principle][Single Responsibility Principle]]
+** not everything needs to be database backed -> encapsulate [[http://en.wikipedia.org/wiki/Business_logic][business logic]] out of DB backed models; also useful for proper [[http://en.wikipedia.org/wiki/Representational_state_transfer][REST]] architecture.
+** keep serialization out of controllers by using =ActiveModel::Serializers= (point =Gemfile= entry to [[https://github.com/rails-api/active_model_serializers][GitHub repo]])
+** use [[http://apidock.com/rails/ActiveRecord/Calculations/pluck][pluck]] method if you don't need AR objects (also see [[http://gavinmiller.io/2013/getting-to-know-pluck-and-select/][Getting to Know Pluck and Select]] by Gavin Miller)
+** =ActiveSupport::Memoizable= was deprecated in Rails 3.1; use =||== or [[https://github.com/matthewrudy/memoist][memoist]]
+** if you use them a lot, also index columns you order by
+** if possible set default values in database, not in a filter
+** use [[https://github.com/flyerhzm/bullet][bullet]] gem to find N+1 queries and other performance issues
+** use =size= with counter caches
+** do batch processing with [[http://apidock.com/rails/ActiveRecord/Batches/find_each][find_each]]
+** user [[http://apidock.com/rails/Module/delegate][delegate]] to avoid [[http://en.wikipedia.org/wiki/Law_of_Demeter][Law of Demeter]] violations
+** use [[http://apidock.com/rails/ActiveRecord/Integration/to_param][to_param]] for friendly URLs
+
+* controllers
+** ask object to perform an action, don't query its internal state (business logic -> model)
+** uses [[http://edgeguides.rubyonrails.org/active_record_querying.html#scopes][scopes]] in model instead of logic in controller (also see [[http://apidock.com/rails/ActiveRecord/Scoping/Default/ClassMethods/default_scope][default_scope]] and [[http://api.rubyonrails.org/][unscoped]])
+** use [[http://api.rubyonrails.org/classes/ActiveRecord/SpawnMethods.html#method-i-merge][merge]] method to merge scopes instead of duplicating conditions (last scope wins in case of shared column)
+** filter sensitive parameters from logs by using =config.filter\_parameters= in =config/application.rb=
+** good examples for filters: authorization, logging, wizards
+** use presenters to avoid complex controller actions
+** use the [[http://api.rubyonrails.org/classes/ActionController/Responder.html][new responder syntax]] (=respond_to= class method + =respond_with=)
+
+* views
+** no queries in views!
+** don't use instance variables in partials, use locals instead
+** use nested layouts when all actions of a controller renders into a [[http://apidock.com/rails/ActionView/Helpers/CaptureHelper/content_for][content_for]]
+
+* general
+** avoid duplication by using [[http://api.rubyonrails.org/classes/ActiveSupport/Concern.html][concerns]] (see [[http://37signals.com/svn/posts/3372-put-chubby-models-on-a-diet-with-concerns][Put chubby models on a diet with concerns]] by dhh)
+** use decorators for view-related business logic (=app/decorators=)
+** specify ruby version in [[http://bundler.io/v1.5/gemfile.html][Gemfile]]
+** use [[https://github.com/ddollar/foreman][foreman]] for Procfile-backed apps
